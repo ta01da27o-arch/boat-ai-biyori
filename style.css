@@ -7,7 +7,7 @@ body {
 
 /* 見出し欄 */
 #headerArea {
-  background-color: deepskyblue;   /* ディープスカイブルー */
+  background-color: #00B4D8;   /* AI感のあるシアンブルー */
   color: #000000;
   border-radius: 14px;
   height: 72px;
@@ -19,7 +19,7 @@ body {
   box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
 
-/* 見出しと24場の間隔 */
+/* 見出しと24場の間隔（ボタン1つ分） */
 #spacer {
   height: 72px;
 }
@@ -33,7 +33,7 @@ body {
 
 /* 各場ボタン */
 .stadium-card {
-  background-color: skyblue;       /* ← スカイブルー */
+  background-color: #CAF0F8;   /* 淡い未来系ブルー */
   color: #000000;
   border-radius: 14px;
   height: 72px;
@@ -45,9 +45,11 @@ body {
   box-shadow: 0 2px 6px rgba(0,0,0,0.25);
   cursor: pointer;
   user-select: none;
-  transition: transform 0.1s ease;
+  transition: transform 0.1s ease, background-color 0.15s ease;
 }
 
+/* 押下時 */
 .stadium-card:active {
   transform: scale(0.96);
+  background-color: #90DBF4;
 }
