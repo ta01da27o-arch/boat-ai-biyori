@@ -1,51 +1,80 @@
 body {
-  font-family: system-ui, sans-serif;
   margin: 0;
-  background: #f5f7fa;
+  font-family: system-ui, sans-serif;
+  background: #f2f4f8;
 }
 
 header {
-  background: #0a4cff;
+  background: #0033cc;
   color: white;
-  padding: 16px;
+  padding: 14px;
   text-align: center;
 }
 
-main {
+.view {
+  display: none;
   padding: 16px;
 }
 
-.controls {
+.view.active {
+  display: block;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.card {
   background: white;
-  padding: 16px;
+  padding: 12px;
   border-radius: 8px;
-  margin-bottom: 16px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.card:hover {
+  background: #e6ecff;
+}
+
+.table {
+  margin-top: 12px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  font-size: 12px;
+}
+
+.row.header {
+  font-weight: bold;
+  background: #dde3ff;
+}
+
+.row > div {
+  border: 1px solid #ccc;
+  padding: 6px;
+  text-align: center;
+}
+
+input {
+  width: 100%;
+  font-size: 12px;
 }
 
 button {
-  margin-top: 12px;
-  padding: 10px 16px;
-  font-size: 16px;
+  padding: 6px 10px;
   border: none;
   border-radius: 6px;
-  background: #0a4cff;
+  background: #0033cc;
   color: white;
 }
 
 .result {
+  margin-top: 16px;
   background: white;
-  padding: 16px;
-  border-radius: 8px;
-}
-
-#prediction {
-  margin-top: 8px;
-  font-size: 18px;
-  font-weight: bold;
-}
-
-footer {
-  text-align: center;
   padding: 12px;
-  color: #666;
+  border-radius: 8px;
 }

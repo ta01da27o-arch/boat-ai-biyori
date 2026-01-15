@@ -1,32 +1,57 @@
-// 開催場データ（仮）
 const stadiums = [
-  "桐生", "戸田", "江戸川", "平和島",
-  "多摩川", "浜名湖", "蒲郡", "常滑",
-  "津", "三国", "びわこ", "住之江",
-  "尼崎", "鳴門", "丸亀", "児島",
-  "宮島", "徳山", "下関", "若松",
-  "芦屋", "福岡", "唐津", "大村"
+  "桐生","戸田","江戸川","平和島","多摩川","浜名湖",
+  "蒲郡","常滑","津","三国","びわこ","住之江",
+  "尼崎","鳴門","丸亀","児島","宮島","徳山",
+  "下関","若松","芦屋","福岡","唐津","大村"
 ];
 
-const select = document.getElementById("stadiumSelect");
-const predictionDiv = document.getElementById("prediction");
-const button = document.getElementById("predictBtn");
+const stadiumView = document.getElementById("stadiumView");
+const predictView = document.getElementById("predictView");
+const grid = document.getElementById("stadiumGrid");
+const stadiumName = document.getElementById("stadiumName");
+const courseRows = document.getElementById("courseRows");
+const backBtn = document.getElementById("backBtn");
+const arrivalRate = document.getElementById("arrivalRate");
 
-// セレクトボックス生成
-stadiums.forEach(stadium => {
-  const option = document.createElement("option");
-  option.value = stadium;
-  option.textContent = stadium;
-  select.appendChild(option);
+// 24場生成
+stadiums.forEach(name => {
+  const div = document.createElement("div");
+  div.className = "card";
+  div.textContent = name;
+  div.onclick = () => openPredict(name);
+  grid.appendChild(div);
 });
 
-// 予測ボタン
-button.addEventListener("click", () => {
-  const stadium = select.value;
+function openPredict(name) {
+  stadiumName.textContent = name;
+  stadiumView.classList.remove("active");
+  predictView.classList.add("active");
+  generateRows();
+}
 
-  // 仮の予測ロジック
-  const patterns = ["逃げ", "差し", "まくり"];
-  const result = patterns[Math.floor(Math.random() * patterns.length)];
+backBtn.onclick = () => {
+  predictView.classList.remove("active");
+  stadiumView.classList.add("active");
+};
 
-  predictionDiv.textContent = `${stadium}：本命は「${result}」`;
-});
+// コース行生成
+function generateRows() {
+  courseRows.innerHTML = "";
+  for (let i = 1; i <= 6; i++) {
+    const row = document.createElement("div");
+    row.className = "row";
+    row.innerHTML = `
+      <div>${i}</div>
+      <div><select><option>A1</option><option>A2</option><option>B1</option><option>B2</option></select></div>
+      <div><select><option>0</option><option>1</option><option>2</option></select></div>
+      <div><input></div>
+      <div><input></div>
+      <div class="decision">決</div>
+      <div><input></div>
+      <div><input></div>
+      <div><input></div>
+    `;
+    courseRows.appendChild(row);
+  }
+  arrivalRate.textContent = "1着:33% / 2着:33% / 3着:34%";
+}
