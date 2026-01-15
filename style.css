@@ -7,8 +7,8 @@ body {
 
 /* 見出し欄 */
 #headerArea {
-  background-color: deepskyblue;
-  color: #000000;              /* ← 明示 */
+  background-color: deepskyblue;   /* ディープスカイブルー */
+  color: #000000;
   border-radius: 14px;
   height: 72px;
   display: flex;
@@ -33,8 +33,8 @@ body {
 
 /* 各場ボタン */
 .stadium-card {
-  background-color: deepskyblue; /* ← 明示 */
-  color: #000000;                /* ← 明示 */
+  background-color: skyblue;       /* ← スカイブルー */
+  color: #000000;
   border-radius: 14px;
   height: 72px;
   display: flex;
