@@ -1,14 +1,16 @@
-/* ===== 場データ（仮） ===== */
+/* ===== 仮・場データ ===== */
 const stadiumData = {
   桐生: {
-    1: ["イン逃げ率高め", "捲り率低下傾向"],
+    1: ["イン逃げ率高め", "捲り率やや低下"]
   },
   戸田: {
-    1: ["差しが決まりやすい", "スタート重要"],
+    1: ["差し決着多め", "スタート巧者有利"]
+  },
+  default: {
+    1: ["イン有利傾向", "展開次第で差し"]
   }
 };
 
-/* ===== 24場一覧 ===== */
 const stadiums = [
   "桐生","戸田","江戸川","平和島","多摩川","浜名湖",
   "蒲郡","常滑","津","三国","びわこ","住之江",
@@ -23,42 +25,40 @@ const screenDetail = document.getElementById("screen-detail");
 const detailHeader = document.getElementById("detailHeader");
 const description = document.getElementById("stadiumDescription");
 const monthSelect = document.getElementById("monthSelect");
+const backBtn = document.getElementById("backBtn");
 
 /* ===== 24場描画 ===== */
 stadiums.forEach(name => {
   const card = document.createElement("div");
   card.className = "stadium-card";
   card.textContent = name;
-
-  card.addEventListener("click", () => {
-    openDetail(name);
-  });
-
+  card.onclick = () => openDetail(name);
   grid.appendChild(card);
 });
 
-/* ===== 詳細画面表示 ===== */
-function openDetail(stadiumName) {
+/* ===== 詳細画面 ===== */
+function openDetail(name) {
   screenStadium.classList.add("hidden");
   screenDetail.classList.remove("hidden");
 
-  detailHeader.textContent = stadiumName;
-
-  updateDescription(stadiumName, monthSelect.value);
-
-  monthSelect.onchange = () => {
-    updateDescription(stadiumName, monthSelect.value);
-  };
+  detailHeader.textContent = name;
+  updateDescription(name, monthSelect.value);
 }
 
-/* ===== 説明更新 ===== */
-function updateDescription(stadiumName, month) {
-  const data = stadiumData[stadiumName]?.[month];
+backBtn.onclick = () => {
+  screenDetail.classList.add("hidden");
+  screenStadium.classList.remove("hidden");
+};
 
-  if (!data) {
-    description.innerHTML = "データ準備中";
-    return;
-  }
+monthSelect.onchange = () => {
+  updateDescription(detailHeader.textContent, monthSelect.value);
+};
+
+/* ===== 特性表示 ===== */
+function updateDescription(name, month) {
+  const data =
+    stadiumData[name]?.[month] ||
+    stadiumData.default[month];
 
   description.innerHTML = data.join("<br>");
 }
