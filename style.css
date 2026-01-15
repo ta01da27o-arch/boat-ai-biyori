@@ -1,0 +1,51 @@
+body {
+  font-family: system-ui, sans-serif;
+  margin: 0;
+  background: #f5f7fa;
+}
+
+header {
+  background: #0a4cff;
+  color: white;
+  padding: 16px;
+  text-align: center;
+}
+
+main {
+  padding: 16px;
+}
+
+.controls {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+button {
+  margin-top: 12px;
+  padding: 10px 16px;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  background: #0a4cff;
+  color: white;
+}
+
+.result {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+#prediction {
+  margin-top: 8px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+footer {
+  text-align: center;
+  padding: 12px;
+  color: #666;
+}
