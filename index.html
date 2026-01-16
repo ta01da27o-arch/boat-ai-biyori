@@ -1,48 +1,31 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <title>競艇予想</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>競艇 展開予想</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- ===== 画面①：24場 ===== -->
 <div id="screen-stadium">
   <div id="headerArea">開催場選択</div>
   <div id="spacer"></div>
   <div id="stadiumGrid"></div>
 </div>
 
-<!-- ===== 画面②：場詳細 ===== -->
 <div id="screen-detail" class="hidden">
+  <div id="detailHeader"></div>
+  <button id="backBtn">← 戻る</button>
 
-  <div id="detailHeaderArea">
-    <button id="backBtn">←</button>
-    <div id="detailHeader"></div>
+  <div id="stadiumDescription"></div>
+
+  <div id="lanes"></div>
+
+  <!-- ⭐ 展開解析枠 -->
+  <div id="analysisBox">
+    <div class="analysis-title">⭐ 展開解析</div>
+    <div id="analysisResult">選手番号を入力してください</div>
   </div>
-
-  <!-- 月選択 -->
-  <div class="section">
-    <div class="label">月を選択</div>
-    <select id="monthSelect">
-      <option value="1">1月</option>
-      <option value="2">2月</option>
-      <option value="3">3月</option>
-    </select>
-  </div>
-
-  <!-- 場特性 -->
-  <div class="section" id="stadiumDescription"></div>
-
-  <!-- 6枠 -->
-  <div class="section">
-    <div class="label">選手データ（仮）</div>
-
-    <div id="lanes"></div>
-  </div>
-
 </div>
 
 <script src="script.js"></script>
