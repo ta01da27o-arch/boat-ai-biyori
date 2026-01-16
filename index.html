@@ -3,40 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>競艇 展開予想（最終版）</title>
+  <title>競艇 展開予想</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div id="screen-stadium">
-  <div id="headerArea">競艇 展開予想</div>
-  <div id="spacer"></div>
+  <div id="header">競艇 展開予想</div>
   <div id="stadiumGrid"></div>
 </div>
 
 <div id="screen-detail" class="hidden">
-  <div id="detailHeader"></div>
+  <div id="headerDetail"></div>
   <button id="backBtn">← 戻る</button>
 
-  <div id="stadiumDescription"></div>
+  <div class="box">
+    月選択：
+    <select id="monthSelect">
+      <option value="1">1月</option>
+      <option value="2">2月</option>
+      <option value="3">3月</option>
+      <option value="4">4月</option>
+      <option value="5">5月</option>
+      <option value="6">6月</option>
+      <option value="7">7月</option>
+      <option value="8">8月</option>
+      <option value="9">9月</option>
+      <option value="10">10月</option>
+      <option value="11">11月</option>
+      <option value="12">12月</option>
+    </select>
+  </div>
 
   <div id="lanes"></div>
 
-  <div id="rankBars"></div>
+  <div class="box">
+    <div class="title">⭐ 決まり手</div>
+    <div id="kimarite"></div>
+  </div>
 
   <div class="box">
     <div class="title">⭐ 展開解析</div>
-    <div id="analysisResult"></div>
+    <div id="analysis"></div>
   </div>
 
   <div class="box">
-    <div class="title">⭐ 3連単 買い目</div>
-    <div id="buyResult"></div>
-  </div>
-
-  <div class="box">
-    <div class="title">⭐ 信頼度</div>
-    <div id="trustResult"></div>
+    <div class="title">⭐ 買い目</div>
+    <div id="buys"></div>
   </div>
 </div>
 
