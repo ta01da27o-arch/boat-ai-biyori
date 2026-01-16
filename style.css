@@ -1,17 +1,17 @@
 body {
   margin: 0;
   font-family: sans-serif;
-  background: #f5f7fa;
+  background: #f4f6f9;
 }
 
 .hidden { display: none; }
 
-#headerArea {
+#headerArea, #detailHeader {
   background: #c7f000;
   padding: 14px;
   text-align: center;
-  font-weight: bold;
   font-size: 18px;
+  font-weight: bold;
 }
 
 #spacer { height: 90px; }
@@ -26,16 +26,9 @@ body {
 .stadium-card {
   background: #6ec6ff;
   border-radius: 12px;
-  padding: 24px 0;
+  padding: 22px 0;
   text-align: center;
   font-weight: bold;
-}
-
-#detailHeader {
-  background: #c7f000;
-  padding: 14px;
-  text-align: center;
-  font-size: 18px;
 }
 
 #backBtn {
@@ -56,39 +49,36 @@ body {
 
 .lane-title {
   font-weight: bold;
+  margin-bottom: 4px;
 }
 
 input {
   width: 100%;
   padding: 6px;
-  margin: 4px 0;
 }
 
-.finish-row,
 .rank-row {
   display: flex;
   align-items: center;
-  font-size: 12px;
+  margin: 4px 10px;
+  font-size: 13px;
 }
 
-.finish-label,
 .rank-label {
-  width: 60px;
+  width: 70px;
 }
 
-.finish-bar-bg,
 .rank-bar-bg {
   flex: 1;
   background: #ddd;
-  margin: 0 5px;
   height: 8px;
+  margin: 0 6px;
   border-radius: 4px;
 }
 
-.finish-bar,
 .rank-bar {
   height: 8px;
-  background: #ff9800;
+  background: #4caf50;
   border-radius: 4px;
 }
 
@@ -96,16 +86,14 @@ input {
   background: red;
 }
 
-#analysisBox,
-#buyBox,
-#trustBox {
+.box {
   background: #fff;
   margin: 10px;
   padding: 10px;
   border-radius: 8px;
 }
 
-.analysis-title {
+.title {
   font-weight: bold;
   margin-bottom: 6px;
 }

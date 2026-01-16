@@ -29,60 +29,59 @@ stadiums.forEach(name => {
   grid.appendChild(d);
 });
 
-let laneData = [];
+let lanes = [];
 
 function openDetail(name) {
   screenStadium.classList.add("hidden");
   screenDetail.classList.remove("hidden");
   detailHeader.textContent = name;
-  desc.innerHTML = "イン有利傾向 / 冬季は捲り控えめ";
+  desc.innerHTML = "イン有利傾向 / 冬季は握りにくい";
   lanesDiv.innerHTML = "";
   rankBars.innerHTML = "";
   analysisResult.innerHTML = "";
   buyResult.innerHTML = "";
   trustResult.innerHTML = "";
-  laneData = [];
+  lanes = [];
 
   for (let i = 1; i <= 6; i++) {
-    const lane = document.createElement("div");
-    lane.className = "lane";
-    lane.innerHTML = `
+    const l = document.createElement("div");
+    l.className = "lane";
+    l.innerHTML = `
       <div class="lane-title">${i}コース</div>
       <input type="number" placeholder="選手番号">
-      <div class="finish"></div>
     `;
-    const input = lane.querySelector("input");
-    input.oninput = () => {
-      if (!input.value) return;
-      laneData[i-1] = calcPower(i, Number(input.value));
-      renderAll();
+    l.querySelector("input").oninput = e => {
+      if (!e.target.value) return;
+      lanes[i-1] = calcScore(i, Number(e.target.value));
+      render();
     };
-    lanesDiv.appendChild(lane);
+    lanesDiv.appendChild(l);
   }
 }
 
-function calcPower(lane, n) {
+function calcScore(lane, n) {
   let score;
   if (lane === 1) {
-    score = 45 + n % 20 - 20;
+    score = 50 + n % 20 - 20;
   } else {
-    score = 20 + n % 40;
+    score = 30 + n % 40;
   }
   return { lane, score: Math.max(5, score) };
 }
 
-function renderAll() {
-  if (laneData.filter(Boolean).length < 6) return;
+function render() {
+  if (lanes.filter(Boolean).length < 6) return;
 
-  laneData.sort((a,b)=>b.score-a.score);
-  const total = laneData.reduce((s,d)=>s+d.score,0);
+  // 表示は1〜6固定
+  const sorted = [...lanes].sort((a,b)=>b.score-a.score);
+  const cut = sorted[5].lane;
 
   rankBars.innerHTML = "";
-  laneData.forEach((d,i)=>{
-    const kill = i>=4;
+  lanes.forEach(d => {
+    const isKill = d.lane === cut;
     rankBars.innerHTML += `
-      <div class="rank-row ${kill?"kill":""}">
-        <div class="rank-label">${d.lane}C</div>
+      <div class="rank-row ${isKill?"kill":""}">
+        <div class="rank-label">${d.lane}コース</div>
         <div class="rank-bar-bg">
           <div class="rank-bar" style="width:${d.score}%"></div>
         </div>${d.score}%
@@ -90,23 +89,38 @@ function renderAll() {
     `;
   });
 
-  const main = laneData[0];
-  const sub = laneData[1];
-  const third = laneData[2];
+  const attacker = sorted[0];
+  const victim = attacker.lane > 1 ? attacker.lane - 1 : null;
+  const chances = lanes
+    .filter(d => d.lane > attacker.lane && d.lane !== cut)
+    .map(d => d.lane);
 
   analysisResult.innerHTML =
-    `主導権は${main.lane}コース。<br>
-     ${sub.lane}コースが追走、${third.lane}コースが展開待ち。`;
+    `${attacker.lane}コースが主導権。<br>` +
+    (victim ? `${victim}コースは叩かれる展開。<br>` : "") +
+    (chances.length ? `展開は${chances.join("・")}コースへ。` : "");
 
-  buyResult.innerHTML = `
-    ${main.lane}-${sub.lane}-${third.lane}<br>
-    ${sub.lane}-${main.lane}-${third.lane}<br>
-    ${main.lane}-${third.lane}-${sub.lane}<br>
-    ${sub.lane}-${third.lane}-${main.lane}
-  `;
+  // 買い目生成
+  const buys = [];
+  sorted.slice(0,4).forEach(a=>{
+    sorted.slice(0,4).forEach(b=>{
+      sorted.slice(0,4).forEach(c=>{
+        if (a.lane!==b.lane && b.lane!==c.lane && a.lane!==c.lane) {
+          if (!(a.lane > 1 && b.lane === a.lane-1)) {
+            buys.push(`${a.lane}-${b.lane}-${c.lane}`);
+          }
+        }
+      });
+    });
+  });
 
-  const topRate = (main.score+sub.score)/total*100;
+  buyResult.innerHTML = buys.slice(0,8).join("<br>");
+
+  const topRate = (sorted[0].score + sorted[1].score) /
+    lanes.reduce((s,d)=>s+d.score,0) * 100;
+
   trustResult.innerHTML =
-    topRate>65 ? "A（堅い）" :
-    topRate>55 ? "B（標準）" : "C（荒れ注意）";
+    topRate > 65 ? "A（堅い）" :
+    topRate > 55 ? "B（標準）" :
+    "C（荒れ注意）";
 }
