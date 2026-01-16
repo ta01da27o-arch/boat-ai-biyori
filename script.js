@@ -12,6 +12,7 @@ const detailHeader = document.getElementById("detailHeader");
 const desc = document.getElementById("stadiumDescription");
 const lanesDiv = document.getElementById("lanes");
 const analysisResult = document.getElementById("analysisResult");
+const rankBars = document.getElementById("rankBars");
 
 document.getElementById("backBtn").onclick = () => {
   screenDetail.classList.add("hidden");
@@ -34,48 +35,42 @@ function openDetail(name) {
   detailHeader.textContent = name;
   desc.innerHTML = "イン有利傾向<br>冬季は捲り控えめ";
   lanesDiv.innerHTML = "";
+  rankBars.innerHTML = "";
   laneData = [];
-  analysisResult.textContent = "選手番号を入力してください";
 
   for (let i = 1; i <= 6; i++) {
     const lane = document.createElement("div");
     lane.className = "lane";
-
     lane.innerHTML = `
-      <div class="lane-title">${i}枠</div>
+      <div class="lane-title">${i}コース</div>
       <input type="number" placeholder="選手番号">
       <div class="finish"></div>
     `;
-
     const input = lane.querySelector("input");
     const finish = lane.querySelector(".finish");
 
     input.oninput = () => {
       if (!input.value) return;
-      const rates = dummyFinish(i, Number(input.value));
+      const rates = dummyRates(i, Number(input.value));
       laneData[i-1] = { lane: i, rates };
       finish.innerHTML = finishHTML(i, rates);
-      analyze();
+      updateRanks();
     };
 
     lanesDiv.appendChild(lane);
   }
 }
 
-/* ===== 仮データ生成 ===== */
-function dummyFinish(lane, n) {
-
-  /* 1コース：守備系 */
+/* 仮データ */
+function dummyRates(lane, n) {
   if (lane === 1) {
     return {
-      escape: 45 + n % 20,        // 逃げ
-      diffed: 15 + n % 15,        // 差され
-      makurare: 10 + n % 10,      // 捲られ
-      makuriDiffed: 8 + n % 10    // 捲り差され
+      escape: 45 + n % 20,
+      diffed: 20,
+      makurare: 15,
+      makuriDiffed: 10
     };
   }
-
-  /* 2〜6コース：攻撃系 */
   return {
     diff: 15 + n % 15,
     makuri: 20 + n % 20,
@@ -83,75 +78,51 @@ function dummyFinish(lane, n) {
   };
 }
 
-/* ===== 表示 ===== */
+/* 決まり手表示 */
 function finishHTML(lane, f) {
   if (lane === 1) {
-    return `
-      ${row("逃げ", f.escape)}
-      ${row("差され", f.diffed)}
-      ${row("捲られ", f.makurare)}
-      ${row("捲り差され", f.makuriDiffed)}
-    `;
+    return row("逃げ", f.escape)
+      + row("差され", f.diffed)
+      + row("捲られ", f.makurare)
+      + row("捲り差され", f.makuriDiffed);
   }
-
-  return `
-    ${row("差し", f.diff)}
-    ${row("捲り", f.makuri)}
-    ${row("捲り差し", f.makuriDiff)}
-  `;
+  return row("差し", f.diff)
+    + row("捲り", f.makuri)
+    + row("捲り差し", f.makuriDiff);
 }
 
-function row(label, value) {
+function row(label, v) {
   return `
     <div class="finish-row">
       <div class="finish-label">${label}</div>
       <div class="finish-bar-bg">
-        <div class="finish-bar" style="width:${value}%"></div>
-      </div>${value}%
+        <div class="finish-bar" style="width:${v}%"></div>
+      </div>${v}%
     </div>
   `;
 }
 
-/* ===== ⭐ 展開解析 ===== */
-function analyze() {
+/* ⭐ 入着率（期待値） */
+function updateRanks() {
   if (laneData.filter(Boolean).length < 6) return;
+  rankBars.innerHTML = "";
 
-  /* 攻め役（2〜6） */
-  const attackers = laneData.filter(d => d.lane !== 1);
+  laneData.forEach(d => {
+    let value;
+    if (d.lane === 1) {
+      value = d.rates.escape - d.rates.diffed;
+    } else {
+      value = Math.max(...Object.values(d.rates));
+    }
+    value = Math.max(5, Math.min(95, value));
 
-  attackers.forEach(d => {
-    const max = Object.entries(d.rates)
-      .reduce((a,b)=>a[1]>b[1]?a:b);
-    d.main = max[0];
-    d.power = max[1];
+    rankBars.innerHTML += `
+      <div class="rank-row">
+        <div class="rank-label">${d.lane}コース</div>
+        <div class="rank-bar-bg">
+          <div class="rank-bar" style="width:${value}%"></div>
+        </div>${value}%
+      </div>
+    `;
   });
-
-  const leader = attackers.reduce((a,b)=>a.power>b.power?a:b);
-
-  /* 1コースの耐性 */
-  const one = laneData[0];
-  const weak = Object.entries(one.rates)
-    .filter(([k]) => k !== "escape")
-    .reduce((a,b)=>a[1]>b[1]?a:b);
-
-  analysisResult.innerHTML = `
-    ⭐ 主導権：${leader.lane}枠（${label(leader.main)}）<br>
-    ⭐ 1コース弱点：${label1(weak[0])}
-  `;
-}
-
-function label(t) {
-  return {
-    diff:"差し",
-    makuri:"捲り",
-    makuriDiff:"捲り差し"
-  }[t];
-}
-
-function label1(t) {
-  return {
-    diffed:"差され",
-    makurare:"捲られ",
-    makuriDiffed:"捲り差され"
-  }[t];
 }
