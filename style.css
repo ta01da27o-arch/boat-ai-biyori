@@ -50,8 +50,21 @@ body {
   margin-right: 10px;
 }
 
-.player {
+.course-box {
+  border: 1px solid #333;
+  background: #e8f6ff;
+  border-radius: 10px;
+  margin: 10px;
   padding: 8px;
+}
+
+.course-title {
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.player-input {
+  margin-bottom: 6px;
 }
 
 .bar {
@@ -62,7 +75,6 @@ body {
 
 .bar-fill {
   height: 14px;
-  background: orange;
 }
 
 .bar-text {
