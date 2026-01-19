@@ -4,41 +4,44 @@
 
 body {
   margin: 0;
-  font-family: sans-serif;
-  background: #f0f8ff;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f4fbff;
 }
 
+/* 見出し */
 header {
-  padding: 10px;
+  padding: 12px;
+  text-align: center;
   font-size: 18px;
   font-weight: bold;
-  text-align: center;
   background: #ccff90; /* 黄緑 */
 }
 
-/* 24場固定 */
+/* 24場グリッド */
 #stadiumGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: 10px;
   padding: 10px;
 }
 
 .stadium {
-  padding: 16px 0;
-  text-align: center;
-  border-radius: 12px;
-  background: #90caf9;
+  height: 60px;
+  border-radius: 14px;
+  background: #9fd3ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-weight: bold;
 }
 
 .stadium.good {
-  background: #ff80ab; /* ピンク */
+  background: #ff8fb1; /* ピンク */
 }
 
-/* 下部 */
+/* 下部詳細 */
 #detailArea {
-  padding: 10px;
+  padding: 12px;
 }
 
 .hint {
@@ -46,15 +49,38 @@ header {
   color: #666;
 }
 
-/* 決まり手・期待値共通 */
+/* 入力欄 */
+.inputRow {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.inputRow input {
+  height: 36px;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* 枠共通 */
 .box {
   border: 1px solid #333;
   background: #e0f7fa;
   padding: 6px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
+/* グラフ */
 .bar {
   height: 18px;
-  margin: 3px 0;
+  margin: 4px 0;
 }
+
+/* コース色 */
+.c1 { background:#ffffff; }
+.c2 { background:#000000; }
+.c3 { background:#f44336; }
+.c4 { background:#2196f3; }
+.c5 { background:#ffeb3b; }
+.c6 { background:#4caf50; }
