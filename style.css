@@ -4,16 +4,18 @@ body {
   background: #f4f6fa;
 }
 
+.hidden { display: none; }
+
 .header {
   background: #9acd32;
-  padding: 14px;
-  text-align: center;
-  font-size: 18px;
+  padding: 12px;
   font-weight: bold;
+  display: flex;
+  align-items: center;
 }
 
-.spacer {
-  height: 70px;
+.header button {
+  margin-right: 10px;
 }
 
 .grid {
@@ -23,8 +25,8 @@ body {
   padding: 12px;
 }
 
-.stadium {
-  background: #aee4ff;
+.stadium, .race {
+  background: #bfe9ff;
   border-radius: 14px;
   height: 90px;
   display: flex;
@@ -34,20 +36,11 @@ body {
   box-shadow: 0 3px 6px rgba(0,0,0,0.15);
 }
 
-.hidden {
-  display: none;
-}
-
-.detail-header {
-  display: flex;
-  align-items: center;
+.race-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
   padding: 10px;
-  background: #9acd32;
-  font-weight: bold;
-}
-
-.detail-header button {
-  margin-right: 10px;
 }
 
 .course-box {
@@ -60,11 +53,6 @@ body {
 
 .course-title {
   font-weight: bold;
-  margin-bottom: 6px;
-}
-
-.player-input {
-  margin-bottom: 6px;
 }
 
 .bar {
@@ -78,18 +66,28 @@ body {
 }
 
 .bar-text {
-  margin-left: 6px;
   font-size: 12px;
+  margin-left: 6px;
 }
 
-.analysis, .bets {
+.section {
   margin: 10px;
   padding: 10px;
   background: #fff;
   border-radius: 10px;
 }
 
-.analysis-title {
+.section-title {
   font-weight: bold;
   margin-bottom: 6px;
+}
+
+.expect-bar {
+  display: flex;
+  align-items: center;
+  margin: 6px 0;
+}
+
+.expect-fill {
+  height: 16px;
 }

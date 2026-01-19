@@ -6,98 +6,125 @@ const stadiums = [
 ];
 
 const colors = {
-  1: "#ffffff",
-  2: "#000000",
-  3: "#ff3333",
-  4: "#3399ff",
-  5: "#ffd700",
-  6: "#33aa33"
+  1:"#fff",2:"#000",3:"#f33",4:"#39f",5:"#fc0",6:"#3a3"
 };
 
-const grid = document.getElementById("stadiumGrid");
-const header = document.getElementById("headerText");
-const detail = document.getElementById("detail");
+let currentStadium = "";
+let currentRace = "";
 
-let candidateCount = Math.floor(Math.random()*6)+8;
-header.textContent = `候補レース数 ${candidateCount}R`;
+const stadiumHeader = document.getElementById("stadiumHeader");
+const stadiumGrid = document.getElementById("stadiumGrid");
+const raceView = document.getElementById("raceView");
+const stadiumView = document.getElementById("stadiumView");
+const detailView = document.getElementById("detailView");
 
-stadiums.forEach(name => {
+const candidateRaceCount = Math.floor(Math.random()*6)+8;
+stadiumHeader.textContent = `候補レース数 ${candidateRaceCount}R`;
+
+stadiums.forEach(s => {
   const d = document.createElement("div");
   d.className = "stadium";
-  d.textContent = name;
-  d.onclick = () => openDetail(name);
-  grid.appendChild(d);
+  d.textContent = s;
+  d.onclick = () => openRace(s);
+  stadiumGrid.appendChild(d);
 });
 
-function openDetail(name) {
-  grid.style.display = "none";
-  detail.classList.remove("hidden");
-  document.getElementById("stadiumName").textContent = name;
-  renderPlayers();
-}
+function openRace(stadium) {
+  currentStadium = stadium;
+  stadiumView.classList.add("hidden");
+  raceView.classList.remove("hidden");
+  document.getElementById("raceHeader").textContent = stadium;
 
-function back() {
-  detail.classList.add("hidden");
-  grid.style.display = "grid";
-}
+  const raceGrid = document.getElementById("raceGrid");
+  raceGrid.innerHTML = "";
 
-function renderPlayers() {
-  const wrap = document.getElementById("players");
-  wrap.innerHTML = "";
-
-  for (let c = 1; c <= 6; c++) {
-    const box = document.createElement("div");
-    box.className = "course-box";
-
-    box.innerHTML = `
-      <div class="course-title">${c}コース</div>
-      <div class="player-input">
-        選手番号：
-        <input type="number" placeholder="例: 4321">
-      </div>
-      <div id="bars${c}"></div>
-    `;
-
-    wrap.appendChild(box);
-    renderBars(c);
+  for(let r=1;r<=12;r++){
+    const d = document.createElement("div");
+    d.className = "race";
+    d.textContent = `${r}R`;
+    d.onclick = ()=>openDetail(r);
+    raceGrid.appendChild(d);
   }
+}
+
+function backToStadium(){
+  raceView.classList.add("hidden");
+  stadiumView.classList.remove("hidden");
+}
+
+function openDetail(race){
+  currentRace = race;
+  raceView.classList.add("hidden");
+  detailView.classList.remove("hidden");
+  document.getElementById("detailHeader").textContent =
+    `${currentStadium} ${race}R`;
+
+  renderPlayers();
+  renderExpectation();
   analyze();
 }
 
-function renderBars(c) {
-  const bars = document.getElementById(`bars${c}`);
-  bars.innerHTML = "";
+function backToRace(){
+  detailView.classList.add("hidden");
+  raceView.classList.remove("hidden");
+}
 
-  let patterns = [];
-  if (c === 1) patterns = ["逃げ","差され","捲られ","捲り差され"];
-  else if (c === 2) patterns = ["逃がし","差し","捲り"];
-  else patterns = ["差し","捲り","捲り差し"];
+function renderPlayers(){
+  const p = document.getElementById("players");
+  p.innerHTML = "";
 
-  patterns.forEach(p => {
-    const v = Math.floor(Math.random() * 40) + 10;
-    bars.innerHTML += `
+  for(let c=1;c<=6;c++){
+    const box = document.createElement("div");
+    box.className="course-box";
+    box.innerHTML = `
+      <div class="course-title">${c}コース</div>
+      選手番号 <input type="number">
+      <div id="bars${c}"></div>
+    `;
+    p.appendChild(box);
+    renderBars(c);
+  }
+}
+
+function renderBars(c){
+  const el = document.getElementById(`bars${c}`);
+  let types = c===1
+    ?["逃げ","差され","捲られ","捲り差され"]
+    :c===2
+    ?["逃がし","差し","捲り"]
+    :["差し","捲り","捲り差し"];
+
+  types.forEach(t=>{
+    const v = Math.floor(Math.random()*40)+10;
+    el.innerHTML += `
       <div class="bar">
-        <div class="bar-fill" style="width:${v}%; background:${colors[c]}"></div>
-        <div class="bar-text">${p} ${v}%</div>
+        <div class="bar-fill" style="width:${v}%;background:${colors[c]}"></div>
+        <div class="bar-text">${t} ${v}%</div>
       </div>
     `;
   });
 }
 
-function analyze() {
-  const attack = [4,5];
-  const head = attack[Math.floor(Math.random() * attack.length)];
-  const second = 2;
-  const thirds = [1,3,6].filter(n => n !== head);
+function renderExpectation(){
+  const e = document.getElementById("expectation");
+  e.innerHTML="";
+  for(let c=1;c<=6;c++){
+    const v = Math.floor(Math.random()*50)+20;
+    e.innerHTML += `
+      <div class="expect-bar">
+        ${c}コース
+        <div class="expect-fill"
+          style="width:${v}%;background:${colors[c]};margin-left:6px">
+        </div> ${v}%
+      </div>
+    `;
+  }
+}
 
+function analyze(){
   document.getElementById("analysisText").textContent =
-    `${attack.join("・")}コースが攻めの中心。
-外からの攻撃により内は不安。
-${second}コースの差し残りが本線。`;
+    "4・5コースが攻めの中心。内はスタート不安。2コース差し残り注意。";
 
-  let bets = "";
-  thirds.slice(0,3).forEach(t => {
-    bets += `${head}-${second}-${t}<br>`;
-  });
-  document.getElementById("betsText").innerHTML = bets;
+  document.getElementById("betsText").innerHTML =
+    "4-2-5<br>4-2-6<br>5-2-4<br>5-2-6";
 }

@@ -8,27 +8,45 @@
 </head>
 <body>
 
-<div class="header" id="headerText"></div>
+<!-- ① 場一覧 -->
+<div id="stadiumView">
+  <div class="header" id="stadiumHeader"></div>
+  <div class="grid" id="stadiumGrid"></div>
+</div>
 
-<div class="spacer"></div>
+<!-- ② レース番号画面 -->
+<div id="raceView" class="hidden">
+  <div class="header">
+    <button onclick="backToStadium()">←</button>
+    <span id="raceHeader"></span>
+  </div>
+  <div class="race-grid" id="raceGrid"></div>
+</div>
 
-<div id="stadiumGrid" class="grid"></div>
-
-<div id="detail" class="hidden">
-  <div class="detail-header">
-    <button onclick="back()">←</button>
-    <div id="stadiumName"></div>
+<!-- ③ 詳細画面 -->
+<div id="detailView" class="hidden">
+  <div class="header">
+    <button onclick="backToRace()">←</button>
+    <span id="detailHeader"></span>
   </div>
 
   <div id="players"></div>
 
-  <div class="analysis">
-    <div class="analysis-title">⭐ 展開解析</div>
+  <!-- ④ コース期待値 -->
+  <div class="section">
+    <div class="section-title">各コース入着期待値</div>
+    <div id="expectation"></div>
+  </div>
+
+  <!-- ⑤ 展開解析 -->
+  <div class="section">
+    <div class="section-title">⭐ 展開解析</div>
     <div id="analysisText"></div>
   </div>
 
-  <div class="bets">
-    <div class="analysis-title">買い目</div>
+  <!-- ⑥ 買い目 -->
+  <div class="section">
+    <div class="section-title">買い目</div>
     <div id="betsText"></div>
   </div>
 </div>
