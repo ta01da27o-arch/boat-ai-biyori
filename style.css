@@ -1,53 +1,137 @@
+/* =========================
+   全体共通
+========================= */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background: #f5f7fa;
+  overscroll-behavior: none;
+}
+
+/* 横スクロール完全禁止 */
 * {
   box-sizing: border-box;
 }
-
 html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
   overflow-x: hidden;
-  touch-action: pan-y;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #f4fbff;
 }
 
-/* ===== 見出し ===== */
-header {
-  width: 100%;
-  padding: 14px 0;
-  text-align: center;
+/* =========================
+   見出し
+========================= */
+.header {
+  background: #c8f000;
+  color: #000;
   font-size: 20px;
   font-weight: bold;
-  background: #ccff90;
+  text-align: center;
+  padding: 12px 0;
 }
 
-/* ===== 24場グリッド（固定雛型） ===== */
-#stadiumGrid {
-  width: 100vw;
-  padding: 10px;
+/* =========================
+   24場グリッド
+========================= */
+.stadium-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* ← 原点回帰 */
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
+  padding: 10px;
 }
 
-/* 各場ボタン */
+/* ★ ここ重要：縦サイズを倍にしている */
 .stadium {
-  height: 22vw;                /* ← ここが重要 */
-  max-height: 100px;           /* 大画面対策 */
-  min-height: 80px;            /* 小画面対策 */
+  background: #7fd7ff;
   border-radius: 16px;
-  background: #9fd3ff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 17px;
+
+  height: 44vw;        /* ← 縦を倍 */
+  max-height: 200px;
+  min-height: 160px;
+
+  font-size: 18px;
   font-weight: bold;
+  color: #000;
   text-align: center;
-  user-select: none;
 }
 
-/* 勝負できそうな場 */
-.stadium.good {
-  background: #ff8fb1;
+/* 勝負候補の場（ピンク） */
+.stadium.candidate {
+  background: #ff9fcf;
 }
+
+/* =========================
+   選手番号入力画面
+========================= */
+.player-input-area {
+  padding: 10px;
+}
+
+/* 選手番号入力欄 */
+.player-input {
+  width: 100%;
+  height: 36px;          /* ← 縦サイズ少し控えめ */
+  font-size: 18px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+/* =========================
+   決まり手グラフ（重要）
+========================= */
+.graph-wrapper {
+  margin-top: 10px;
+  margin-bottom: 14px;
+  padding: 8px;
+  background: #e6f6ff;     /* 水色背景 */
+  border: 1px solid #bcdff1;
+  border-radius: 8px;
+}
+
+.graph-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.graph-label {
+  width: 70px;
+  font-size: 15px;
+  color: #000;
+}
+
+/* グラフ背景 */
+.graph-bar-bg {
+  flex: 1;
+  height: 18px;
+  background: #d9eef9;
+  border-radius: 9px;
+  overflow: hidden;
+  margin-right: 6px;
+}
+
+/* 実バー（JSから width が入る） */
+.graph-bar {
+  height: 100%;
+  width: 0%;
+  transition: width 0.4s ease;
+}
+
+/* %表示 */
+.graph-value {
+  width: 40px;
+  font-size: 14px;
+  text-align: right;
+}
+
+/* =========================
+   コース別カラー
+========================= */
+.course-1 { background: #ffffff; }
+.course-2 { background: #000000; }
+.course-3 { background: #ff4b4b; }
+.course-4 { background: #3b82f6; }
+.course-5 { background: #ffd400; }
+.course-6 { background: #2ecc71; }
