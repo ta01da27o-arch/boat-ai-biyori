@@ -1,42 +1,64 @@
 /* =========================
-   24場グリッド（強制修正）
+   全体共通
+========================= */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f4fbff;
+}
+
+/* =========================
+   見出し（必ず表示）
+========================= */
+.header {
+  height: 56px;
+  line-height: 56px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  background: #b6e96b; /* 黄緑 */
+  color: #000;
+}
+
+/* =========================
+   24場グリッド（画面内固定）
 ========================= */
 .stadium-grid {
   display: grid !important;
   grid-template-columns: repeat(4, 1fr) !important;
-  grid-auto-rows: auto;
-  gap: 10px;
-  padding: 10px;
 
-  width: 100%;
+  /* 👇 見出し分を引いた高さを使う */
+  height: calc(100vh - 56px);
+
+  gap: 8px;
+  padding: 8px;
+  box-sizing: border-box;
 }
 
-/* 各場ボタン */
+/* =========================
+   各場ボタン
+========================= */
 .stadium {
-  background: #7fd7ff;
+  background: #87ceeb; /* スカイブルー */
   border-radius: 16px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  /* 縦サイズを倍 */
-  height: 44vw;
-  max-height: 200px;
-  min-height: 160px;
-
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
   color: #000;
   text-align: center;
+
+  /* 👇 画面に収めるため高さは自動 */
+  height: 100%;
 }
 
-/* 勝負候補（ピンク） */
+/* 勝負候補の場（ピンク） */
 .stadium.candidate {
   background: #ff9fcf;
-}
-
-/* 横スクロール完全禁止 */
-html, body {
-  overflow-x: hidden;
 }
