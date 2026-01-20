@@ -1,102 +1,17 @@
 /* =========================
-   全体
-========================= */
+   強制確認用 CSS
+   ========================= */
+
+/* これが反映されなければ
+   style.css は一切読まれていません */
 body {
   margin: 0;
-  padding: 10px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-               "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
-  background: #f4f7fb;
-  color: #000;
+  padding: 0;
+  background: red !important;
+  font-family: sans-serif;
 }
 
-/* =========================
-   見出し（最優先）
-========================= */
-.header {
-  background: linear-gradient(180deg, #e9f6c9, #cfe8a4);
-  color: #000;
-  font-weight: bold;
-  text-align: center;
-  padding: 12px;
-  margin-bottom: 6px;
-  border-radius: 14px;
-  box-shadow:
-    0 4px 0 #9bbf63,
-    0 6px 10px rgba(0,0,0,0.15);
-}
-
-/* =========================
-   24場グリッド（固定）
-========================= */
-#stadiumGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-}
-
-/* =========================
-   各場ボタン（重要）
-========================= */
-.stadium {
-  /* ❗ width指定は絶対しない */
-  background: linear-gradient(180deg, #6fb7ff, #2f80ed);
-  color: #000;
-  font-weight: bold;
-  text-align: center;
-  border-radius: 18px;
-  padding: 14px 6px;
-
-  box-shadow:
-    0 6px 0 #1c5bbf,
-    0 10px 14px rgba(0,0,0,0.25);
-
-  user-select: none;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
-}
-
-/* 押下 */
-.stadium:active {
-  transform: translateY(4px);
-  box-shadow:
-    0 2px 0 #1c5bbf,
-    0 4px 6px rgba(0,0,0,0.25);
-}
-
-/* 勝負できそうな場（ピンク） */
-.stadium.hot {
-  background: linear-gradient(180deg, #ff9bd5, #ff4fa3);
-  box-shadow:
-    0 6px 0 #c2185b,
-    0 10px 14px rgba(0,0,0,0.25);
-}
-
-/* =========================
-   レース番号グリッド
-========================= */
-#raceGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-top: 10px;
-}
-
-/* レース番号ボタン */
-.race-btn {
-  background: linear-gradient(180deg, #6fb7ff, #2f80ed);
-  border-radius: 14px;
-  padding: 10px 0;
-  font-weight: bold;
-  text-align: center;
-  box-shadow:
-    0 4px 0 #1c5bbf,
-    0 6px 10px rgba(0,0,0,0.2);
-}
-
-/* 勝負レース番号 */
-.race-btn.hot {
-  background: linear-gradient(180deg, #ff9bd5, #ff4fa3);
-  box-shadow:
-    0 4px 0 #c2185b,
-    0 6px 10px rgba(0,0,0,0.2);
+/* 念のため最低限 */
+h1, h2, h3, p, div, button {
+  box-sizing: border-box;
 }
