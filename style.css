@@ -1,5 +1,5 @@
 /* =========================
-   全体共通
+   全体
 ========================= */
 body {
   margin: 0;
@@ -11,27 +11,23 @@ body {
 }
 
 /* =========================
-   見出し
+   見出し（最優先）
 ========================= */
 .header {
-  background: linear-gradient(
-    180deg,
-    #e8f7c8,
-    #cdeaa1
-  );
+  background: linear-gradient(180deg, #e9f6c9, #cfe8a4);
   color: #000;
   font-weight: bold;
   text-align: center;
   padding: 12px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   border-radius: 14px;
   box-shadow:
-    0 4px 0 #9ecb6b,
+    0 4px 0 #9bbf63,
     0 6px 10px rgba(0,0,0,0.15);
 }
 
 /* =========================
-   24場グリッド
+   24場グリッド（固定）
 ========================= */
 #stadiumGrid {
   display: grid;
@@ -40,27 +36,26 @@ body {
 }
 
 /* =========================
-   各場ボタン（通常）
+   各場ボタン（重要）
 ========================= */
 .stadium {
-  background: linear-gradient(
-    180deg,
-    #6fb7ff,
-    #2f80ed
-  );
+  /* ❗ width指定は絶対しない */
+  background: linear-gradient(180deg, #6fb7ff, #2f80ed);
   color: #000;
   font-weight: bold;
   text-align: center;
   border-radius: 18px;
   padding: 14px 6px;
+
   box-shadow:
     0 6px 0 #1c5bbf,
     0 10px 14px rgba(0,0,0,0.25);
+
   user-select: none;
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
-/* 押した時の沈み込み */
+/* 押下 */
 .stadium:active {
   transform: translateY(4px);
   box-shadow:
@@ -68,31 +63,29 @@ body {
     0 4px 6px rgba(0,0,0,0.25);
 }
 
-/* =========================
-   候補レースあり（ピンク）
-========================= */
+/* 勝負できそうな場（ピンク） */
 .stadium.hot {
-  background: linear-gradient(
-    180deg,
-    #ff9bd5,
-    #ff4fa3
-  );
+  background: linear-gradient(180deg, #ff9bd5, #ff4fa3);
   box-shadow:
     0 6px 0 #c2185b,
     0 10px 14px rgba(0,0,0,0.25);
 }
 
 /* =========================
-   レース番号ボタン（既存構造対応）
+   レース番号グリッド
 ========================= */
+#raceGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* レース番号ボタン */
 .race-btn {
-  background: linear-gradient(
-    180deg,
-    #6fb7ff,
-    #2f80ed
-  );
+  background: linear-gradient(180deg, #6fb7ff, #2f80ed);
   border-radius: 14px;
-  padding: 10px;
+  padding: 10px 0;
   font-weight: bold;
   text-align: center;
   box-shadow:
@@ -102,11 +95,7 @@ body {
 
 /* 勝負レース番号 */
 .race-btn.hot {
-  background: linear-gradient(
-    180deg,
-    #ff9bd5,
-    #ff4fa3
-  );
+  background: linear-gradient(180deg, #ff9bd5, #ff4fa3);
   box-shadow:
     0 4px 0 #c2185b,
     0 6px 10px rgba(0,0,0,0.2);
