@@ -1,94 +1,79 @@
-/* =========================
-   全体
-========================= */
-html, body {
+/* 共通 */
+body {
   margin: 0;
-  padding: 0;
-  height: 100%;
-  overflow-x: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #f4fbff;
+  font-family: sans-serif;
+  background: #f2f2f2;
 }
 
-/* =========================
-   見出し
-========================= */
-.header {
-  height: 56px;
-  line-height: 56px;
+.hidden {
+  display: none;
+}
+
+/* ===== タイトル ===== */
+.title {
   text-align: center;
+  padding: 12px 0;
   font-size: 18px;
-  font-weight: bold;
-  background: #b6e96b;
-  color: #000;
 }
 
-/* =========================
-   24場グリッド
-========================= */
+/* ===== 24場グリッド ===== */
 .stadium-grid {
-  display: grid !important;
-  grid-template-columns: repeat(4, 1fr) !important;
-  height: calc(100vh - 56px);
-
-  gap: 6px;
-  padding: 6px;
-  box-sizing: border-box;
-
-  /* 👇 見出し下の空白を「1/4枠分」に */
-  margin-top: calc((100vh - 56px) / 24);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  gap: 10px;
+  padding: 12px;
 }
 
-/* =========================
-   各場ボタン（3D復活）
-========================= */
 .stadium {
-  /* グラデーションで立体感 */
-  background: linear-gradient(
-    to bottom,
-    #9fe3ff 0%,
-    #6fc7ee 100%
-  );
-
-  border-radius: 16px;
-
+  height: 80px; /* ←完成形サイズ想定 */
+  background: #ddd;
+  border-radius: 10px;
+  box-shadow: 0 4px 0 #aaa;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  font-size: 15px;
   font-weight: bold;
-  color: #000;
-  text-align: center;
-
-  height: 75%;
-  padding: 2px;
-
-  /* 👇 3D感の要 */
-  box-shadow:
-    0 4px 0 #4fa9cf,
-    0 6px 10px rgba(0,0,0,0.25);
-
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-/* 押した感（将来タップ用） */
-.stadium:active {
-  transform: translateY(2px);
-  box-shadow:
-    0 2px 0 #4fa9cf,
-    0 3px 6px rgba(0,0,0,0.25);
-}
-
-/* 勝負候補（ピンク） */
 .stadium.candidate {
-  background: linear-gradient(
-    to bottom,
-    #ffb6d9 0%,
-    #ff7fb8 100%
-  );
+  background: #ffb6c1;
+  box-shadow: 0 4px 0 #e48aa0;
+}
 
-  box-shadow:
-    0 4px 0 #cc5c93,
-    0 6px 10px rgba(0,0,0,0.25);
+/* ===== レース番号画面 ===== */
+.race-header {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
+
+#backBtn {
+  padding: 6px 12px;
+  margin-right: 10px;
+}
+
+#raceTitle {
+  font-size: 18px;
+}
+
+.race-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: 12px;
+}
+
+.race {
+  height: 60px;
+  background: #e0e0e0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.race.candidate {
+  background: #ffb6c1;
 }

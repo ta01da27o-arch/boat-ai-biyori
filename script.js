@@ -1,4 +1,6 @@
-/* ===== 24場データ（仮） ===== */
+// ============================
+// データ（仮）
+// ============================
 const stadiums = [
   "桐生","戸田","江戸川","平和島",
   "多摩川","浜名湖","蒲郡","常滑",
@@ -8,55 +10,60 @@ const stadiums = [
   "芦屋","福岡","唐津","大村"
 ];
 
-const goodStadiums = ["桐生","江戸川","住之江","丸亀","大村"];
+// 勝負できそうな場（仮）
+const candidateStadiums = ["桐生","住之江","丸亀"];
 
-const grid = document.getElementById("stadiumGrid");
+// 勝負レース（仮）
+const candidateRaces = [4,5,9];
 
-/* index.html 用 */
-if (grid) {
-  stadiums.forEach(name => {
-    const d = document.createElement("div");
-    d.className = "stadium" + (goodStadiums.includes(name) ? " good" : "");
-    d.textContent = name;
-    d.onclick = () => {
-      location.href = `race.html?stadium=${encodeURIComponent(name)}`;
-    };
-    grid.appendChild(d);
-  });
-}
+// ============================
+// 初期表示：24場
+// ============================
+const stadiumGrid = document.querySelector(".stadium-grid");
 
-/* race.html 用 */
-const kimarite = document.getElementById("kimarite");
-const expect = document.getElementById("expect");
+stadiums.forEach(name => {
+  const div = document.createElement("div");
+  div.className = "stadium";
+  div.textContent = name;
 
-if (kimarite && expect) {
-  const colors = ["c1","c2","c3","c4","c5","c6"];
-
-  for (let i = 1; i <= 6; i++) {
-    const v1 = 20 + i * 8;
-    const v2 = 30 + i * 6;
-
-    kimarite.innerHTML += `
-      <div class="box">
-        ${i}コース
-        <div class="bar ${colors[i-1]}" style="width:${v1}%"></div>
-        ${v1}%
-      </div>
-    `;
-
-    expect.innerHTML += `
-      <div class="box">
-        <div class="bar ${colors[i-1]}" style="width:${v2}%">
-          ${i}コース
-        </div>
-      </div>
-    `;
+  if (candidateStadiums.includes(name)) {
+    div.classList.add("candidate");
   }
 
-  const params = new URLSearchParams(location.search);
-  const stadium = params.get("stadium");
-  if (stadium) {
-    document.getElementById("raceTitle").textContent =
-      `${stadium}競艇場 4R`;
+  div.onclick = () => openRaceScreen(name);
+  stadiumGrid.appendChild(div);
+});
+
+// ============================
+// レース番号画面
+// ============================
+const stadiumScreen = document.getElementById("stadiumScreen");
+const raceScreen = document.getElementById("raceScreen");
+const raceGrid = document.querySelector(".race-grid");
+const raceTitle = document.getElementById("raceTitle");
+const backBtn = document.getElementById("backBtn");
+
+function openRaceScreen(stadiumName) {
+  stadiumScreen.classList.add("hidden");
+  raceScreen.classList.remove("hidden");
+
+  raceTitle.textContent = stadiumName;
+
+  raceGrid.innerHTML = "";
+  for (let r = 1; r <= 12; r++) {
+    const div = document.createElement("div");
+    div.className = "race";
+    div.textContent = `${r}R`;
+
+    if (candidateRaces.includes(r)) {
+      div.classList.add("candidate");
+    }
+
+    raceGrid.appendChild(div);
   }
 }
+
+backBtn.onclick = () => {
+  raceScreen.classList.add("hidden");
+  stadiumScreen.classList.remove("hidden");
+};
