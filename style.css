@@ -1,5 +1,5 @@
 /* =========================
-   全体共通
+   全体
 ========================= */
 html, body {
   margin: 0;
@@ -11,7 +11,7 @@ html, body {
 }
 
 /* =========================
-   見出し（必ず表示）
+   見出し
 ========================= */
 .header {
   height: 56px;
@@ -19,46 +19,43 @@ html, body {
   text-align: center;
   font-size: 18px;
   font-weight: bold;
-  background: #b6e96b; /* 黄緑 */
+  background: #b6e96b;
   color: #000;
 }
 
 /* =========================
-   24場グリッド（画面内固定）
+   24場グリッド
 ========================= */
 .stadium-grid {
   display: grid !important;
   grid-template-columns: repeat(4, 1fr) !important;
-
-  /* 👇 見出し分を引いた高さを使う */
   height: calc(100vh - 56px);
-
-  gap: 8px;
-  padding: 8px;
+  gap: 6px;              /* ← 縮小 */
+  padding: 6px;          /* ← 縮小 */
   box-sizing: border-box;
 }
 
 /* =========================
-   各場ボタン
+   各場枠（縦を縮小）
 ========================= */
 .stadium {
-  background: #87ceeb; /* スカイブルー */
-  border-radius: 16px;
+  background: #87ceeb;
+  border-radius: 14px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  font-size: 16px;
+  font-size: 15px;       /* ← 少し縮小 */
   font-weight: bold;
   color: #000;
   text-align: center;
 
-  /* 👇 画面に収めるため高さは自動 */
   height: 100%;
+  padding: 4px 2px;      /* ← 縦を削る（ここが肝） */
 }
 
-/* 勝負候補の場（ピンク） */
+/* 勝負候補 */
 .stadium.candidate {
   background: #ff9fcf;
 }
