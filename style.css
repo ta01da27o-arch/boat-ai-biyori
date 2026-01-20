@@ -1,19 +1,20 @@
-/* 共通 */
 body {
   margin: 0;
   font-family: sans-serif;
-  background: #f2f2f2;
+  background: #eef3f7;
 }
 
 .hidden {
   display: none;
 }
 
-/* ===== タイトル ===== */
+/* ===== 見出し ===== */
 .title {
   text-align: center;
   padding: 12px 0;
   font-size: 18px;
+  background: #1e88e5;
+  color: #fff;
 }
 
 /* ===== 24場グリッド ===== */
@@ -26,19 +27,26 @@ body {
 }
 
 .stadium {
-  height: 80px; /* ←完成形サイズ想定 */
-  background: #ddd;
-  border-radius: 10px;
-  box-shadow: 0 4px 0 #aaa;
+  height: 80px;
+  background: linear-gradient(#ffffff, #dbe6ee);
+  border-radius: 12px;
+  box-shadow: 0 6px 0 #9aa9b5;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
+  transition: transform 0.1s, box-shadow 0.1s;
 }
 
+.stadium:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #9aa9b5;
+}
+
+/* 候補場（ピンク） */
 .stadium.candidate {
-  background: #ffb6c1;
-  box-shadow: 0 4px 0 #e48aa0;
+  background: linear-gradient(#ffd1dc, #ff9fb5);
+  box-shadow: 0 6px 0 #d87c94;
 }
 
 /* ===== レース番号画面 ===== */
@@ -46,15 +54,27 @@ body {
   display: flex;
   align-items: center;
   padding: 10px;
-}
-
-#backBtn {
-  padding: 6px 12px;
-  margin-right: 10px;
+  background: #1e88e5;
 }
 
 #raceTitle {
   font-size: 18px;
+  color: #fff;
+}
+
+/* 共通3Dボタン */
+.btn-3d {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  background: linear-gradient(#ffffff, #dbe6ee);
+  box-shadow: 0 4px 0 #9aa9b5;
+}
+
+.btn-3d:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #9aa9b5;
 }
 
 .race-grid {
@@ -66,14 +86,22 @@ body {
 
 .race {
   height: 60px;
-  background: #e0e0e0;
-  border-radius: 8px;
+  background: linear-gradient(#ffffff, #dbe6ee);
+  border-radius: 10px;
+  box-shadow: 0 5px 0 #9aa9b5;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
 }
 
+.race:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #9aa9b5;
+}
+
+/* 候補レース */
 .race.candidate {
-  background: #ffb6c1;
+  background: linear-gradient(#ffd1dc, #ff9fb5);
+  box-shadow: 0 5px 0 #d87c94;
 }
