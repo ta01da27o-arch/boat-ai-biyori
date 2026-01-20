@@ -29,24 +29,28 @@ html, body {
 .stadium-grid {
   display: grid !important;
   grid-template-columns: repeat(4, 1fr) !important;
-
-  /* 👇 見出し＋空白分を引く */
   height: calc(100vh - 56px);
 
   gap: 6px;
   padding: 6px;
   box-sizing: border-box;
 
-  /* 👇 見出し下に「1枠分」の空白を作る */
-  margin-top: calc((100vh - 56px) / 6);
+  /* 👇 見出し下の空白を「1/4枠分」に */
+  margin-top: calc((100vh - 56px) / 24);
 }
 
 /* =========================
-   各場ボタン
+   各場ボタン（3D復活）
 ========================= */
 .stadium {
-  background: #87ceeb;
-  border-radius: 14px;
+  /* グラデーションで立体感 */
+  background: linear-gradient(
+    to bottom,
+    #9fe3ff 0%,
+    #6fc7ee 100%
+  );
+
+  border-radius: 16px;
 
   display: flex;
   align-items: center;
@@ -57,13 +61,34 @@ html, body {
   color: #000;
   text-align: center;
 
-  /* 👇 縦サイズを 25% 短く */
   height: 75%;
-
   padding: 2px;
+
+  /* 👇 3D感の要 */
+  box-shadow:
+    0 4px 0 #4fa9cf,
+    0 6px 10px rgba(0,0,0,0.25);
+
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-/* 勝負候補 */
+/* 押した感（将来タップ用） */
+.stadium:active {
+  transform: translateY(2px);
+  box-shadow:
+    0 2px 0 #4fa9cf,
+    0 3px 6px rgba(0,0,0,0.25);
+}
+
+/* 勝負候補（ピンク） */
 .stadium.candidate {
-  background: #ff9fcf;
+  background: linear-gradient(
+    to bottom,
+    #ffb6d9 0%,
+    #ff7fb8 100%
+  );
+
+  box-shadow:
+    0 4px 0 #cc5c93,
+    0 6px 10px rgba(0,0,0,0.25);
 }
