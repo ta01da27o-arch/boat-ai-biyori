@@ -1,6 +1,6 @@
-/* =========================
-   全体リセット
-========================= */
+/* =====================
+   リセット
+===================== */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -10,12 +10,11 @@
 
 body {
   background: #eef7fb;
-  min-height: 100vh;
 }
 
-/* =========================
+/* =====================
    共通
-========================= */
+===================== */
 .hidden {
   display: none;
 }
@@ -25,11 +24,11 @@ button {
   cursor: pointer;
 }
 
-/* =========================
+/* =====================
    24場グリッド画面
-========================= */
+===================== */
 #stadiumScreen {
-  padding: 12px 12px 0; /* ← 下の余白を完全カット */
+  padding: 12px;
 }
 
 /* 見出し */
@@ -48,28 +47,28 @@ button {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
-  padding-bottom: 0; /* ← 水色帯の原因を遮断 */
 }
 
-/* 場ボタン */
-.stadium-btn {
-  background: linear-gradient(#5bb2f2, #1f86d8);
-  color: #fff;
+/* ★ 実ボタン（class不要） */
+.stadium-grid button {
+  height: 70px;
+  border-radius: 14px;
   font-size: 16px;
   font-weight: bold;
-  border-radius: 14px;
-  height: 70px;
+  color: #fff;
+  background: linear-gradient(#5bb2f2, #1f86d8);
   box-shadow: 0 5px 0 #1669a8;
 }
 
-.stadium-btn.active {
+/* 候補場（JSで active が付く前提） */
+.stadium-grid button.active {
   background: linear-gradient(#ff8ab8, #e91e63);
   box-shadow: 0 5px 0 #b0003a;
 }
 
-/* =========================
+/* =====================
    レース番号画面
-========================= */
+===================== */
 #raceScreen {
   padding: 12px;
 }
@@ -90,35 +89,33 @@ button {
   font-size: 14px;
 }
 
-/* 場名（中央固定） */
+/* 場名中央固定 */
 #raceTitle {
   text-align: center;
   font-size: 22px;
   font-weight: bold;
 }
 
-/* =========================
-   レース番号グリッド
-========================= */
+/* レース番号グリッド */
 .race-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
 }
 
-/* レース番号ボタン */
-.race-btn {
-  background: linear-gradient(#5bb2f2, #1f86d8); /* ← 青色復活 */
-  color: #fff;
+/* ★ 実レース番号ボタン */
+.race-grid button {
+  height: 72px;
+  border-radius: 14px;
   font-size: 18px;
   font-weight: bold;
-  border-radius: 14px;
-  height: 72px;
+  color: #fff;
+  background: linear-gradient(#5bb2f2, #1f86d8);
   box-shadow: 0 5px 0 #1669a8;
 }
 
-/* 選択済み */
-.race-btn.active {
+/* 選択中 */
+.race-grid button.active {
   background: linear-gradient(#ff8ab8, #e91e63);
   box-shadow: 0 5px 0 #b0003a;
 }
