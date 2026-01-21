@@ -1,29 +1,31 @@
-// ===============================
-// 要素取得
-// ===============================
+console.log("script.js は動いています");
+
+// =====================
+// 画面取得
+// =====================
 const stadiumScreen = document.getElementById("stadiumScreen");
 const raceScreen = document.getElementById("raceScreen");
+const analysisScreen = document.getElementById("analysisScreen");
 
-const stadiumGrid = document.querySelector(".stadium-grid");
-const raceGrid = document.querySelector(".race-grid");
+// =====================
+// 共通：画面切り替え
+// =====================
+function showScreen(screen) {
+  stadiumScreen.classList.add("hidden");
+  raceScreen.classList.add("hidden");
+  analysisScreen.classList.add("hidden");
 
-const backBtn = document.getElementById("backBtn");
-const raceTitle = document.getElementById("raceTitle");
+  screen.classList.remove("hidden");
+}
 
-// 追加エリア（存在しなければ無視される）
-const playerInput = document.getElementById("playerInput");
-const kimariteSection = document.getElementById("kimariteSection");
+// =====================
+// 初期表示
+// =====================
+showScreen(stadiumScreen);
 
-// ===============================
-// 初期表示制御
-// ===============================
-raceScreen.classList.add("hidden");
-if (playerInput) playerInput.classList.add("hidden");
-if (kimariteSection) kimariteSection.classList.add("hidden");
-
-// ===============================
-// 24場データ（仮）
-// ===============================
+// =====================
+// 24場生成
+// =====================
 const stadiums = [
   "桐生","戸田","江戸川","平和島",
   "多摩川","浜名湖","蒲郡","常滑",
@@ -33,64 +35,41 @@ const stadiums = [
   "芦屋","福岡","唐津","大村"
 ];
 
-// ===============================
-// 24場グリッド生成
-// ===============================
+const stadiumGrid = document.querySelector(".stadium-grid");
+
 stadiums.forEach(name => {
-  const btn = document.createElement("div");
-  btn.className = "stadium stadium-btn";
+  const btn = document.createElement("button");
+  btn.className = "stadium-btn";
   btn.textContent = name;
 
   btn.addEventListener("click", () => {
-    // 画面切替
-    stadiumScreen.classList.add("hidden");
-    raceScreen.classList.remove("hidden");
-
-    raceTitle.textContent = `${name} レース番号`;
-
-    createRaceButtons();
+    document.getElementById("raceTitle").textContent = name;
+    showScreen(raceScreen);
   });
 
   stadiumGrid.appendChild(btn);
 });
 
-// ===============================
+// =====================
 // レース番号生成
-// ===============================
-function createRaceButtons() {
-  raceGrid.innerHTML = "";
+// =====================
+const raceGrid = document.querySelector(".race-grid");
 
-  for (let r = 1; r <= 12; r++) {
-    const btn = document.createElement("div");
-    btn.className = "race race-btn";
-    btn.textContent = `${r}R`;
+for (let i = 1; i <= 12; i++) {
+  const btn = document.createElement("button");
+  btn.className = "race-btn";
+  btn.textContent = `${i}R`;
 
-    btn.addEventListener("click", () => {
-      // レース番号画面は残したまま下に表示
-      if (playerInput) playerInput.classList.remove("hidden");
-      if (kimariteSection) kimariteSection.classList.remove("hidden");
-
-      // 候補R（ピンク）
-      document
-        .querySelectorAll(".race-btn")
-        .forEach(b => b.classList.remove("selected"));
-
-      btn.classList.add("selected");
-    });
-
-    raceGrid.appendChild(btn);
-  }
-}
-
-// ===============================
-// 戻るボタン
-// ===============================
-if (backBtn) {
-  backBtn.addEventListener("click", () => {
-    raceScreen.classList.add("hidden");
-    stadiumScreen.classList.remove("hidden");
-
-    if (playerInput) playerInput.classList.add("hidden");
-    if (kimariteSection) kimariteSection.classList.add("hidden");
+  btn.addEventListener("click", () => {
+    showScreen(analysisScreen);
   });
+
+  raceGrid.appendChild(btn);
 }
+
+// =====================
+// 戻るボタン
+// =====================
+document.getElementById("backBtn").addEventListener("click", () => {
+  showScreen(stadiumScreen);
+});
