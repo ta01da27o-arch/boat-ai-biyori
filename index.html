@@ -5,27 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>競艇 展開予想</title>
 
-  <!-- 完成CSS -->
+  <!-- ★ 凍結CSS（以後変更しない） -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <!-- ===================== -->
-<!-- 24場選択画面 -->
+<!-- ① 24場グリッド画面（初期表示） -->
 <!-- ===================== -->
 <div id="stadiumScreen">
 
   <h1 class="title">候補レース数 11R</h1>
 
-  <!-- ★ JSが生成する場所（絶対に必要） -->
   <div class="stadium-grid">
-    <!-- script.js -->
+    <!-- script.js が 24場を生成 -->
   </div>
 
 </div>
 
 <!-- ===================== -->
-<!-- レース番号画面 -->
+<!-- ② レース番号画面（初期非表示） -->
 <!-- ===================== -->
 <div id="raceScreen" class="hidden">
 
@@ -34,17 +33,16 @@
     <h2 id="raceTitle"></h2>
   </div>
 
-  <!-- ★ JSが生成する場所（絶対に必要） -->
   <div class="race-grid">
-    <!-- script.js -->
+    <!-- script.js が 1R〜12R を生成 -->
   </div>
 
 </div>
 
 <!-- ===================== -->
-<!-- 選手番号入力欄 -->
+<!-- ③ 選手番号入力（初期非表示） -->
 <!-- ===================== -->
-<div class="player-input">
+<div id="playerScreen" class="hidden">
 
   <h2>選手番号入力</h2>
 
@@ -60,9 +58,9 @@
 </div>
 
 <!-- ===================== -->
-<!-- ③ 決まり手グラフ -->
+<!-- ④ 決まり手グラフ（初期非表示） -->
 <!-- ===================== -->
-<div class="kimarite-section">
+<div id="kimariteScreen" class="hidden">
 
   <h2>各コース 決まり手</h2>
 
@@ -105,7 +103,7 @@
 </div>
 
 <!-- ===================== -->
-<!-- Script -->
+<!-- Script（以後ここだけ編集） -->
 <!-- ===================== -->
 <script src="script.js"></script>
 
