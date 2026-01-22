@@ -22,7 +22,6 @@ const stadiums = [
 
 // =====================
 // 仮：候補レースデータ
-// （後で実データに置き換える）
 // =====================
 const candidateData = {
   "桐生": [3, 7, 11],
@@ -59,11 +58,11 @@ function createStadiumGrid() {
 
   stadiums.forEach(name => {
     const btn = document.createElement("button");
-    btn.className = "stadium-btn";
+    btn.className = "stadium";
+
     btn.textContent = name;
 
-    // 候補レースあり → ピンク
-    if (candidateData[name] && candidateData[name].length > 0) {
+    if (candidateData[name]?.length) {
       btn.classList.add("candidate");
     }
 
@@ -76,7 +75,7 @@ function createStadiumGrid() {
 }
 
 // =====================
-// レース番号画面表示
+// レース番号画面
 // =====================
 function showRaceScreen(stadiumName) {
   stadiumScreen.classList.add("hidden");
@@ -90,10 +89,10 @@ function showRaceScreen(stadiumName) {
 
   for (let i = 1; i <= 12; i++) {
     const btn = document.createElement("button");
-    btn.className = "race-btn";
+    btn.className = "race";   // ← ここが重要
+
     btn.textContent = i + "R";
 
-    // 候補レース → ピンク
     if (candidates.includes(i)) {
       btn.classList.add("candidate");
     }
