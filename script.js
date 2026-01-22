@@ -58,10 +58,13 @@ function createStadiumGrid() {
 
   stadiums.forEach(name => {
     const btn = document.createElement("button");
-    btn.className = "stadium";
+
+    // ★ 完成形クラスをそのまま付与
+    btn.classList.add("stadium", "stadium-btn");
 
     btn.textContent = name;
 
+    // 候補場 → ピンク
     if (candidateData[name]?.length) {
       btn.classList.add("candidate");
     }
@@ -89,10 +92,13 @@ function showRaceScreen(stadiumName) {
 
   for (let i = 1; i <= 12; i++) {
     const btn = document.createElement("button");
-    btn.className = "race";   // ← ここが重要
+
+    // ★ 完成形クラスをそのまま付与
+    btn.classList.add("race", "race-btn");
 
     btn.textContent = i + "R";
 
+    // 候補R → ピンク
     if (candidates.includes(i)) {
       btn.classList.add("candidate");
     }
