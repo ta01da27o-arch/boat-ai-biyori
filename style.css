@@ -20,16 +20,6 @@ h1, h2 {
   background: #e6f5c9;
 }
 
-/* ★ レース番号見出し（帯＋完全中央） */
-.race-title {
-  flex: 1;
-  text-align: center;
-  background: #d9f0ff;
-  border-radius: 12px;
-  margin: 10px 10px 10px 0;
-  padding: 12px 0;
-}
-
 /* 非表示 */
 .hidden {
   display: none;
@@ -62,20 +52,44 @@ h1, h2 {
 }
 
 /* =====================
-   レース番号
+   レース番号画面
 ===================== */
+
+/* ★ ヘッダーを「選手番号入力欄」と同じカード化 */
 .race-header {
+  margin: 10px;
+  padding: 10px;
+  border-radius: 12px;
+
   display: flex;
   align-items: center;
+
+  background: #ffffff; /* ← course-box と同系統 */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
 
+/* 戻るボタン */
 .back-btn {
-  margin: 10px;
   padding: 12px 18px;
   border-radius: 14px;
   font-weight: bold;
+  cursor: pointer;
 }
 
+/* ★ 場名はカード中央に自然配置 */
+.race-title {
+  flex: 1;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+
+  background: none;   /* 帯を消す */
+  margin-right: 48px; /* 戻るボタン分の視覚補正 */
+}
+
+/* =====================
+   レース番号グリッド
+===================== */
 .race-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
