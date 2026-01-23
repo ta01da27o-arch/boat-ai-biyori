@@ -269,3 +269,17 @@ h1, h2 {
 .c6 .expectation-fill {
   background: #43a047;
 }
+/* =========================
+   ⑤ 入着期待値 表示制御
+   （選手番号入力画面のみ）
+========================= */
+
+/* デフォルトは非表示 */
+#expectationSection {
+  display: none;
+}
+
+/* 選手番号入力が表示されている時だけ表示 */
+#playerScreen:not(.hidden) + #expectationSection {
+  display: block;
+}
