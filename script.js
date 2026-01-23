@@ -4,7 +4,6 @@ const playerScreen = document.getElementById('playerScreen');
 
 const stadiumGrid = document.querySelector('.stadium-grid');
 const raceGrid = document.querySelector('.race-grid');
-
 const raceTitle = document.getElementById('raceTitle');
 const backBtn = document.getElementById('backBtn');
 
@@ -25,20 +24,14 @@ function createStadiumButtons() {
     const div = document.createElement('div');
     div.className = 'stadium';
     div.textContent = name;
-    div.onclick = () => selectStadium(div, name);
+    div.onclick = () => {
+      raceTitle.textContent = name;
+      stadiumScreen.classList.add('hidden');
+      raceScreen.classList.remove('hidden');
+      createRaceButtons();
+    };
     stadiumGrid.appendChild(div);
   });
-}
-
-function selectStadium(btn, name) {
-  document.querySelectorAll('.stadium').forEach(b => b.classList.remove('candidate'));
-  btn.classList.add('candidate');
-
-  raceTitle.textContent = name;
-  stadiumScreen.classList.add('hidden');
-  raceScreen.classList.remove('hidden');
-
-  createRaceButtons();
 }
 
 function createRaceButtons() {
@@ -47,15 +40,11 @@ function createRaceButtons() {
     const div = document.createElement('div');
     div.className = 'race';
     div.textContent = i + 'R';
-    div.onclick = () => selectRace(div);
+    div.onclick = () => {
+      playerScreen.classList.remove('hidden');
+    };
     raceGrid.appendChild(div);
   }
-}
-
-function selectRace(btn) {
-  document.querySelectorAll('.race').forEach(b => b.classList.remove('candidate'));
-  btn.classList.add('candidate');
-  playerScreen.classList.remove('hidden');
 }
 
 backBtn.onclick = () => {
