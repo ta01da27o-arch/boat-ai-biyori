@@ -94,12 +94,6 @@ h1, h2 {
   cursor: pointer;
 }
 
-.back-btn {
-  height: 64px;
-  font-size: 1.2rem;
-  padding: 0 18px;
-}
-
 /* =========================
    候補表示
 ========================= */
@@ -121,23 +115,24 @@ h1, h2 {
 .course-box {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px;
+  gap: 8px;
+  padding: 6px;
   border-radius: 10px;
 }
 
 .course-box span {
-  width: 32px;
+  width: 28px;
   text-align: center;
   font-weight: bold;
+  font-size: 0.9rem;
 }
 
 .player-grid input {
   flex: 1;
-  height: 52px;
-  font-size: 1.1rem;
+  height: 46px;
+  font-size: 1rem;
   text-align: center;
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid #aaa;
 }
 
@@ -150,29 +145,29 @@ h1, h2 {
 .c6 { background: #e5ffe5; }
 
 /* ==================================================
-   ④ 決まり手欄（★ 縦サイズ 1/4 縮小）
+   ④ 決まり手欄（縦1/4縮小＋文字連動）
 ================================================== */
 .kimarite-row {
   display: flex;
   align-items: center;
-  padding: 4px;          /* ← 縮小 */
-  margin: 3px 10px;      /* ← 縮小 */
-  border-radius: 8px;
+  padding: 3px;
+  margin: 3px 10px;
+  border-radius: 6px;
 }
 
 .kimarite-row .label {
-  width: 60px;           /* ← わずかに縮小 */
+  width: 56px;
+  font-size: 0.85rem;
   font-weight: bold;
-  font-size: 0.9rem;
 }
 
 .bar {
   flex: 1;
-  height: 8px;           /* ← 1/4 縮小 */
+  height: 7px;
   background: #ddd;
   border-radius: 4px;
   overflow: hidden;
-  margin: 0 8px;
+  margin: 0 6px;
 }
 
 .bar div {
@@ -180,36 +175,40 @@ h1, h2 {
 }
 
 .value {
-  width: 44px;
+  width: 40px;
   text-align: right;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 /* ==================================================
-   ⑤ 入着期待値欄（★ 縦サイズ 1/4 縮小）
+   ⑤ 入着期待値欄（縦1/4縮小＋文字連動）
 ================================================== */
+.expect-section {
+  margin-top: 6px;
+}
+
 .expect-row {
   display: flex;
   align-items: center;
-  padding: 4px;          /* ← 縮小 */
-  margin: 3px 10px;      /* ← 縮小 */
-  border-radius: 8px;
+  padding: 3px;
+  margin: 3px 10px;
+  border-radius: 6px;
 }
 
 .expect-row .course {
-  width: 32px;
+  width: 28px;
   text-align: center;
   font-weight: bold;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .expect-bar {
   flex: 1;
-  height: 8px;           /* ← 1/4 縮小 */
+  height: 7px;
   background: #ddd;
   border-radius: 4px;
   overflow: hidden;
-  margin: 0 8px;
+  margin: 0 6px;
 }
 
 .expect-bar div {
@@ -217,9 +216,21 @@ h1, h2 {
 }
 
 .expect-value {
-  width: 44px;
+  width: 40px;
   text-align: right;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+}
+
+/* =========================
+   表示制御（超重要）
+========================= */
+#playerScreen .expect-section {
+  display: block;
+}
+
+#stadiumScreen .expect-section,
+#raceScreen .expect-section {
+  display: none;
 }
 
 /* =========================
