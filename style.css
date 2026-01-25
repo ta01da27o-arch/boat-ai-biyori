@@ -211,3 +211,71 @@ h1, h2 {
 .expectation-row {
   border: 1px solid rgba(0, 0, 0, 0.18);
 }
+/* ===================== */
+/* 展開解析（コメント） */
+/* ===================== */
+
+#analysisSection {
+  margin-top: 16px;
+}
+
+#analysisSection h2 {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.analysis-box {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  background: #fafafa;
+}
+
+.analysis-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #333;
+  white-space: pre-wrap;
+}
+
+
+/* ===================== */
+/* 買い目欄 */
+/* ===================== */
+
+#betSection {
+  margin-top: 16px;
+}
+
+#betSection h2 {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.bet-box {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: #fff;
+}
+
+.bet-row {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  padding: 4px 0;
+}
+
+.bet-row:not(:last-child) {
+  border-bottom: 1px dotted #ddd;
+}
+
+.bet-mark {
+  width: 24px;
+  font-weight: bold;
+}
+
+.bet-content {
+  flex: 1;
+  letter-spacing: 0.5px;
+}
