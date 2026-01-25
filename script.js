@@ -1,5 +1,5 @@
 // ================================
-// 画面管理
+// 画面切り替え＆24場グリッド
 // ================================
 
 const stadiumScreen = document.getElementById('stadiumScreen');
@@ -12,10 +12,6 @@ const raceGrid = document.querySelector('.race-grid');
 const raceTitle = document.getElementById('raceTitle');
 const backBtn = document.getElementById('backBtn');
 
-// ================================
-// 競艇場一覧
-// ================================
-
 const stadiums = [
   '桐生','戸田','江戸川','平和島',
   '多摩川','浜名湖','蒲郡','常滑',
@@ -25,82 +21,48 @@ const stadiums = [
   '芦屋','福岡','唐津','大村'
 ];
 
-// ================================
-// 初期生成
-// ================================
-
 createStadiumButtons();
 
-// ================================
-// 競艇場ボタン生成
-// ================================
-
 function createStadiumButtons() {
-
   stadiumGrid.innerHTML = '';
-
   stadiums.forEach(name => {
-
     const div = document.createElement('div');
     div.className = 'stadium';
     div.textContent = name;
-
     div.onclick = () => selectStadium(name);
-
     stadiumGrid.appendChild(div);
   });
 }
 
-// ================================
-// 競艇場選択
-// ================================
-
 function selectStadium(name) {
-
   raceTitle.textContent = name;
-
   stadiumScreen.classList.add('hidden');
   raceScreen.classList.remove('hidden');
-
   createRaceButtons();
 }
 
-// ================================
-// レース番号生成
-// ================================
-
 function createRaceButtons() {
-
   raceGrid.innerHTML = '';
-
   for (let i = 1; i <= 12; i++) {
-
     const div = document.createElement('div');
     div.className = 'race';
     div.textContent = i + 'R';
-
     div.onclick = () => {
       playerScreen.classList.remove('hidden');
     };
-
     raceGrid.appendChild(div);
   }
 }
 
-// ================================
-// 戻るボタン
-// ================================
-
 backBtn.onclick = () => {
-
   raceScreen.classList.add('hidden');
   stadiumScreen.classList.remove('hidden');
-
   playerScreen.classList.add('hidden');
 };
 
+
 // ================================
-// 決まり手データ取得
+// 決まり手 → 総合期待度AI
 // ================================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -114,7 +76,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const data = {};
 
     rows.forEach(row => {
-
       const label = row.querySelector(".label").textContent.trim();
       const valueText = row.querySelector(".value").textContent.replace("%", "");
       const value = parseFloat(valueText) || 0;
@@ -125,35 +86,25 @@ document.addEventListener("DOMContentLoaded", () => {
     return data;
   }
 
-  // ================================
-  // 総合期待度計算
-  // ================================
-
   function calculateExpectation(course) {
 
     const k = getKimariteValues(course);
-
     let score = 0;
 
     if (course === 1) {
-
       score =
         (k["逃げ"] || 0) * 1.2 -
         (k["差され"] || 0) * 0.6 -
         (k["捲られ"] || 0) * 0.6 -
         (k["捲差"] || 0) * 0.4;
-
-    } 
+    }
     else if (course === 2) {
-
       score =
         (k["差し"] || 0) * 1.0 +
         (k["捲り"] || 0) * 0.6 -
         (k["逃がし"] || 0) * 0.4;
-
-    } 
+    }
     else {
-
       score =
         (k["差し"] || 0) * 0.8 +
         (k["捲り"] || 0) * 1.0 +
@@ -162,10 +113,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     return Math.max(score, 0);
   }
-
-  // ================================
-  // 総合期待度更新
-  // ================================
 
   function updateExpectations() {
 
@@ -191,30 +138,28 @@ document.addEventListener("DOMContentLoaded", () => {
       if (bar) bar.style.width = percent + "%";
       if (value) value.textContent = percent + "%";
     });
-  }
 
-  // ================================
-  // 自動監視（入力変化で再計算）
-  // ================================
+    // AI連動
+    generateRaceComment();
+    generateBetsAllPatterns();
+  }
 
   const observer = new MutationObserver(updateExpectations);
 
   document.querySelectorAll(".value").forEach(el => {
-
     observer.observe(el, {
       childList: true,
       characterData: true,
       subtree: true
     });
-
   });
 
   updateExpectations();
-
 });
 
+
 // ================================
-// 展開コメント自動生成（シンプル型AI）
+// 展開解析コメントAI（安定版）
 // ================================
 
 function generateRaceComment() {
@@ -222,9 +167,7 @@ function generateRaceComment() {
   const scores = [];
 
   for (let i = 1; i <= 6; i++) {
-
     const row = document.querySelector(`.expectation-row.c${i}`);
-
     if (!row) continue;
 
     const valueText = row.querySelector(".expectation-value").textContent;
@@ -238,7 +181,7 @@ function generateRaceComment() {
   scores.sort((a, b) => b.value - a.value);
 
   const top = scores[0];
-  const second = scores[1] || { value: 0 };
+  const second = scores[1];
 
   let comment = "";
 
@@ -261,32 +204,61 @@ function generateRaceComment() {
 
   } 
   else {
-
     comment = "各艇拮抗。混戦模様で高配当注意。";
   }
 
-  const commentBox = document.querySelector(".analysis-text");
+  const commentBox = document.querySelector("#race-comment");
 
   if (commentBox) {
     commentBox.textContent = comment;
   }
 }
 
+
 // ================================
-// コメント自動更新監視
+// 全展開型 買い目自動算出AI
 // ================================
 
-const commentObserver = new MutationObserver(generateRaceComment);
+function generateBetsAllPatterns() {
 
-document.querySelectorAll(".expectation-value").forEach(el => {
+  const scores = [];
 
-  commentObserver.observe(el, {
-    childList: true,
-    characterData: true,
-    subtree: true
+  for (let i = 1; i <= 6; i++) {
+
+    const row = document.querySelector(`.expectation-row.c${i}`);
+    if (!row) continue;
+
+    const valueText = row.querySelector(".expectation-value").textContent;
+    const value = parseInt(valueText.replace("%", "")) || 0;
+
+    scores.push({ course: i, value });
+  }
+
+  if (scores.length < 3) return;
+
+  scores.sort((a, b) => b.value - a.value);
+
+  const top3 = scores.slice(0, 3).map(s => s.course);
+
+  const patterns = [
+    [top3[0], top3[1], top3[2]],
+    [top3[0], top3[2], top3[1]],
+    [top3[1], top3[0], top3[2]],
+    [top3[1], top3[2], top3[0]],
+    [top3[2], top3[0], top3[1]],
+    [top3[2], top3[1], top3[0]]
+  ];
+
+  const betBox = document.querySelector("#bet-list");
+
+  if (!betBox) return;
+
+  betBox.innerHTML = "";
+
+  patterns.forEach(p => {
+    const div = document.createElement("div");
+    div.className = "bet-item";
+    div.textContent = `${p[0]}-${p[1]}-${p[2]}`;
+    betBox.appendChild(div);
   });
-
-});
-
-// 初回生成
-generateRaceComment();
+}
