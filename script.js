@@ -501,3 +501,91 @@ document.querySelectorAll(".expectation-value").forEach(el => {
 
 // 初期表示
 updatePredictionBars();
+// ================================
+// 二重グラフ 1コース0%修正＋予測連動（シンプル型）
+// ================================
+
+function getBaseExpectation(course) {
+
+  const row = document.querySelector(`.expectation-row.c${course}`);
+  if (!row) return 0;
+
+  const valueText = row.querySelector(".expectation-value")?.textContent || "0";
+  return parseInt(valueText.replace("%", "")) || 0;
+}
+
+
+// シンプル展開補正ロジック
+function calculatePredictExpectation(course) {
+
+  const base = getBaseExpectation(course);
+
+  let modifier = 1;
+
+  // イン強化・弱体ルール
+  if (course === 1) {
+
+    const outsideAttack =
+      getBaseExpectation(3) +
+      getBaseExpectation(4) +
+      getBaseExpectation(5) +
+      getBaseExpectation(6);
+
+    if (outsideAttack > 250) modifier -= 0.25;
+    else if (outsideAttack > 180) modifier -= 0.15;
+    else modifier += 0.15;
+
+  } 
+  else {
+
+    const innerPower = getBaseExpectation(1);
+
+    if (innerPower > 70) modifier -= 0.2;
+    else if (innerPower < 40) modifier += 0.2;
+    else modifier += 0.05;
+
+  }
+
+  const predicted = Math.round(base * modifier);
+
+  return Math.max(Math.min(predicted, 100), 0);
+}
+
+
+// 二重グラフ更新
+function updateDoubleGraphs() {
+
+  for (let i = 1; i <= 6; i++) {
+
+    const row = document.querySelector(`.expectation-row.c${i}`);
+    if (!row) continue;
+
+    const base = getBaseExpectation(i);
+    const predicted = calculatePredictExpectation(i);
+
+    const baseBar = row.querySelector(".expectation-bar .base-bar");
+    const predictBar = row.querySelector(".expectation-bar .predict-bar");
+
+    const value = row.querySelector(".expectation-value");
+
+    if (baseBar) baseBar.style.width = base + "%";
+    if (predictBar) predictBar.style.width = predicted + "%";
+
+    if (value) value.textContent = predicted + "%";
+  }
+}
+
+
+// 変化検知
+const doubleObserver = new MutationObserver(updateDoubleGraphs);
+
+document.querySelectorAll(".expectation-value").forEach(el => {
+  doubleObserver.observe(el, {
+    childList: true,
+    characterData: true,
+    subtree: true
+  });
+});
+
+// 初期反映
+updateDoubleGraphs();
