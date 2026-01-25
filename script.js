@@ -589,3 +589,69 @@ document.querySelectorAll(".expectation-value").forEach(el => {
 
 // 初期反映
 updateDoubleGraphs();
+// ================================
+// 展開タイプ自動判定（シンプル型）
+// ================================
+
+function detectRaceType() {
+
+  const scores = [];
+
+  for (let i = 1; i <= 6; i++) {
+    const row = document.querySelector(`.expectation-row.c${i}`);
+    if (!row) continue;
+
+    const val = parseInt(
+      row.querySelector(".expectation-value").textContent.replace("%","")
+    ) || 0;
+
+    scores.push({ course: i, value: val });
+  }
+
+  if (scores.length === 0) return;
+
+  scores.sort((a,b) => b.value - a.value);
+
+  const top = scores[0];
+  const second = scores[1];
+
+  let raceType = "";
+
+  // イン逃げ型
+  if (top.course === 1 && top.value >= 70 && (top.value - second.value) >= 15) {
+    raceType = "イン逃げ濃厚";
+
+  // 波乱型
+  } else if (scores.find(s => s.course === 1).value <= 30 && top.course !== 1) {
+    raceType = "波乱注意";
+
+  // まくり主導型
+  } else if (top.course >= 3) {
+    raceType = "外攻め主導";
+
+  // 混戦型
+  } else {
+    raceType = "混戦";
+  }
+
+  const typeBox = document.querySelector("#race-type");
+
+  if (typeBox) {
+    typeBox.textContent = "展開タイプ：" + raceType;
+  }
+}
+
+
+// 総合期待度と連動
+const typeObserver = new MutationObserver(detectRaceType);
+
+document.querySelectorAll(".expectation-value").forEach(el => {
+  typeObserver.observe(el, {
+    childList: true,
+    characterData: true,
+    subtree: true
+  });
+});
+
+// 初回判定
+detectRaceType();
