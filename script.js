@@ -1,57 +1,113 @@
-const stadiumScreen = document.getElementById('stadiumScreen');
-const raceScreen = document.getElementById('raceScreen');
-const playerScreen = document.getElementById('playerScreen');
+document.addEventListener("DOMContentLoaded", () => {
 
-const stadiumGrid = document.querySelector('.stadium-grid');
-const raceGrid = document.querySelector('.race-grid');
+  /* ============================
+     決まり手％を取得
+  ============================ */
 
-const raceTitle = document.getElementById('raceTitle');
-const backBtn = document.getElementById('backBtn');
+  function getKimariteValues(course) {
 
-const stadiums = [
-  '桐生','戸田','江戸川','平和島',
-  '多摩川','浜名湖','蒲郡','常滑',
-  '津','三国','びわこ','住之江',
-  '尼崎','鳴門','丸亀','児島',
-  '宮島','徳山','下関','若松',
-  '芦屋','福岡','唐津','大村'
-];
+    const rows = document.querySelectorAll(
+      `.kimarite-course.c${course} .kimarite-row`
+    );
 
-createStadiumButtons();
+    const data = {};
 
-function createStadiumButtons() {
-  stadiumGrid.innerHTML = '';
-  stadiums.forEach(name => {
-    const div = document.createElement('div');
-    div.className = 'stadium';
-    div.textContent = name;
-    div.onclick = () => selectStadium(name);
-    stadiumGrid.appendChild(div);
-  });
-}
+    rows.forEach(row => {
+      const label = row.querySelector(".label").textContent.trim();
+      const valueText = row.querySelector(".value").textContent.replace("%", "");
+      const value = parseFloat(valueText) || 0;
 
-function selectStadium(name) {
-  raceTitle.textContent = name;
-  stadiumScreen.classList.add('hidden');
-  raceScreen.classList.remove('hidden');
-  createRaceButtons();
-}
+      data[label] = value;
+    });
 
-function createRaceButtons() {
-  raceGrid.innerHTML = '';
-  for (let i = 1; i <= 12; i++) {
-    const div = document.createElement('div');
-    div.className = 'race';
-    div.textContent = i + 'R';
-    div.onclick = () => {
-      playerScreen.classList.remove('hidden');
-    };
-    raceGrid.appendChild(div);
+    return data;
   }
-}
 
-backBtn.onclick = () => {
-  raceScreen.classList.add('hidden');
-  stadiumScreen.classList.remove('hidden');
-  playerScreen.classList.add('hidden');
-};
+  /* ============================
+     各コース期待度計算
+  ============================ */
+
+  function calculateExpectation(course) {
+
+    const k = getKimariteValues(course);
+    let score = 0;
+
+    // 1コース
+    if (course === 1) {
+      score =
+        (k["逃げ"] || 0) * 1.2 -
+        (k["差され"] || 0) * 0.6 -
+        (k["捲られ"] || 0) * 0.6 -
+        (k["捲差"] || 0) * 0.4;
+    }
+
+    // 2コース
+    else if (course === 2) {
+      score =
+        (k["差し"] || 0) * 1.0 +
+        (k["捲り"] || 0) * 0.6 -
+        (k["逃がし"] || 0) * 0.4;
+    }
+
+    // 3〜6コース
+    else {
+      score =
+        (k["差し"] || 0) * 0.8 +
+        (k["捲り"] || 0) * 1.0 +
+        (k["捲差"] || 0) * 0.7;
+    }
+
+    return Math.max(score, 0);
+  }
+
+  /* ============================
+     総合期待度 更新
+  ============================ */
+
+  function updateExpectations() {
+
+    const rawScores = [];
+
+    for (let i = 1; i <= 6; i++) {
+      rawScores.push(calculateExpectation(i));
+    }
+
+    const maxScore = Math.max(...rawScores, 1);
+
+    rawScores.forEach((score, index) => {
+
+      const percent = Math.round((score / maxScore) * 100);
+
+      const row = document.querySelector(
+        `.expectation-row.c${index + 1}`
+      );
+
+      const bar = row.querySelector(".expectation-bar div");
+      const value = row.querySelector(".expectation-value");
+
+      bar.style.width = percent + "%";
+      value.textContent = percent + "%";
+    });
+  }
+
+  /* ============================
+     自動監視（数値変更で再計算）
+  ============================ */
+
+  const observer = new MutationObserver(updateExpectations);
+
+  document.querySelectorAll(".value").forEach(el => {
+    observer.observe(el, {
+      childList: true,
+      characterData: true,
+      subtree: true
+    });
+  });
+
+  /* ============================
+     初回実行
+  ============================ */
+
+  updateExpectations();
+
+});
