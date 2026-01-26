@@ -194,36 +194,129 @@ function updatePredictionBars(){
 }
 
 // ================================
-// 展開タイプ判定
+// 展開タイプ自動判定AI（細分化本格版）
 // ================================
 
-function detectRaceType(){
+function detectRaceTypeAdvanced() {
 
-  const arr=[];
+  const values = [];
 
-  for(let i=1;i<=6;i++){
-    arr.push({course:i,value:getVal(i)});
+  for (let i = 1; i <= 6; i++) {
+    const row = document.querySelector(`.expectation-row.c${i}`);
+    if (!row) continue;
+
+    const v = parseInt(
+      row.querySelector(".expectation-value").textContent.replace("%","")
+    ) || 0;
+
+    values.push({ course: i, value: v });
   }
 
-  arr.sort((a,b)=>b.value-a.value);
+  if (values.length === 0) return;
 
-  const top=arr[0];
-  const second=arr[1];
+  const get = c => values.find(v => v.course === c)?.value || 0;
 
-  let type="混戦";
+  const inPower = get(1);
 
-  if(top.course===1 && top.value>=70 && top.value-second.value>=15)
-    type="イン逃げ濃厚";
+  const sashiPower = get(2) + get(3);
 
-  else if(arr.find(s=>s.course===1).value<=30 && top.course!==1)
-    type="波乱注意";
+  const makuriPower = get(3) + get(4) + get(5);
 
-  else if(top.course>=3)
-    type="外攻め主導";
+  const outsideAttack = get(3) + get(4) + get(5) + get(6);
 
-  document.getElementById("race-type").textContent=
-    "展開タイプ："+type;
+  const totalAttack = sashiPower + makuriPower;
+
+  values.sort((a,b)=>b.value-a.value);
+
+  const top = values[0];
+  const second = values[1];
+
+  let raceType = "";
+
+  // ===== 展開AIロジック =====
+
+  // イン逃げ一本
+  if (
+    inPower >= 75 &&
+    outsideAttack < 160 &&
+    inPower - second.value >= 20
+  ) {
+    raceType = "イン逃げ一本型";
+
+  // イン残し差し
+  } else if (
+    inPower >= 65 &&
+    sashiPower >= 90 &&
+    outsideAttack < 200
+  ) {
+    raceType = "イン残し差し型";
+
+  // 差し主導
+  } else if (
+    sashiPower > makuriPower &&
+    get(2) >= 60
+  ) {
+    raceType = "差し主導型";
+
+  // まくり一撃
+  } else if (
+    makuriPower >= 140 &&
+    get(3) >= 70 &&
+    inPower < 60
+  ) {
+    raceType = "まくり一撃型";
+
+  // まくり差し連動
+  } else if (
+    makuriPower >= 120 &&
+    sashiPower >= 90
+  ) {
+    raceType = "まくり差し連動型";
+
+  // 外攻め競り合い
+  } else if (
+    outsideAttack >= 180 &&
+    Math.abs(get(3) - get(4)) <= 15
+  ) {
+    raceType = "外攻め競り合い型";
+
+  // 超波乱
+  } else if (
+    inPower <= 30 &&
+    top.course !== 1 &&
+    top.value >= 65
+  ) {
+    raceType = "超波乱型";
+
+  // 混戦消耗
+  } else {
+    raceType = "混戦消耗型";
+  }
+
+  const box = document.querySelector("#race-type");
+
+  if (box) {
+    box.textContent = "展開タイプ：" + raceType;
+  }
 }
+
+
+// ================================
+// 展開タイプと総合期待度を連動
+// ================================
+
+const raceTypeObserver = new MutationObserver(detectRaceTypeAdvanced);
+
+document.querySelectorAll(".expectation-value").forEach(el => {
+  raceTypeObserver.observe(el, {
+    childList: true,
+    characterData: true,
+    subtree: true
+  });
+});
+
+// 初回判定
+detectRaceTypeAdvanced();
 
 // ================================
 // 展開コメント
