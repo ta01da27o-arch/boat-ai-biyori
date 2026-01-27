@@ -343,3 +343,26 @@ h1,h2{
 .bet-item:last-child{
   border-bottom:none;
 }
+/* =========================
+   グラフ％文字 表示調整
+========================= */
+
+.bar-text{
+ position:absolute;
+ right:6px;
+ top:50%;
+ transform:translateY(-50%);
+ font-size:12px;              /* バー高さ12pxと同等 */
+ font-weight:bold;
+ color:#000;
+ pointer-events:none;
+ white-space:nowrap;
+}
+
+/* バーをrelativeに */
+
+.attack-base,
+.attack-predict,
+.attack-ai{
+ position:relative;
+}
