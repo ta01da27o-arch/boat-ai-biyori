@@ -49,6 +49,7 @@ function selectStadium(i){
 function selectRace(r){
   document.getElementById("raceScreen").classList.add("hidden");
   document.getElementById("playerScreen").classList.remove("hidden");
+
   calcAll();
 }
 
@@ -83,67 +84,76 @@ function calcAll(){
 // ===============================
 function updateExpectationBars(base,predict,ai){
 
-  const colors = [
-    "#ffffff",
-    "#000000",
-    "#e53935",
-    "#1e88e5",
-    "#fdd835",
-    "#43a047"
+  const bgColors = [
+    "#ffffff",   // 1 白
+    "#e0e0e0",   // 2 グレー
+    "#ffebee",   // 3 薄赤
+    "#e3f2fd",   // 4 薄青
+    "#fffde7",   // 5 薄黄
+    "#e8f5e9"    // 6 薄緑
   ];
 
-  const lightColors = [
-    "rgba(255,255,255,0.4)",
-    "rgba(0,0,0,0.15)",
-    "rgba(229,57,53,0.25)",
-    "rgba(30,136,229,0.25)",
-    "rgba(253,216,53,0.35)",
-    "rgba(67,160,71,0.25)"
+  const barColors = [
+    "#ffffff",   // 1 白
+    "#000000",   // 2 黒
+    "#e53935",   // 3 赤
+    "#1e88e5",   // 4 青
+    "#fdd835",   // 5 黄
+    "#43a047"    // 6 緑
   ];
+
+  const labels = ["実績","予測","AI"];
 
   document.querySelectorAll(".expectation-row").forEach((row,i)=>{
 
-    const barBox = row.querySelector(".expectation-bar");
-    barBox.innerHTML="";
+    const box = row.querySelector(".expectation-bar");
+    box.innerHTML = "";
 
-    const makeLine=(val)=>{
+    const values = [base[i],predict[i],ai[i]];
 
-      const line=document.createElement("div");
+    values.forEach((val,idx)=>{
+
+      const line = document.createElement("div");
       line.style.display="flex";
       line.style.alignItems="center";
-      line.style.margin="5px 0";
+      line.style.margin="6px 0";
 
-      const barOuter=document.createElement("div");
-      barOuter.style.flex="1";
-      barOuter.style.height="14px";
-      barOuter.style.position="relative";
-      barOuter.style.background = lightColors[i];
-      barOuter.style.border = i===0
-        ? `3px solid ${colors[i]}`
-        : `1px solid ${colors[i]}`;
+      // 左ラベル
+      const label = document.createElement("div");
+      label.textContent = labels[idx];
+      label.style.width="40px";
+      label.style.fontSize="12px";
 
-      const bar=document.createElement("div");
+      // 背景枠
+      const outer = document.createElement("div");
+      outer.style.flex="1";
+      outer.style.height="16px";
+      outer.style.background = bgColors[i];
+      outer.style.border = i===0 ? "3px solid #000" : "1px solid #000";
+      outer.style.position="relative";
+      outer.style.margin="0 6px";
+
+      // バー
+      const bar = document.createElement("div");
       bar.style.height="100%";
-      bar.style.width=val+"%";
-      bar.style.background = colors[i];
+      bar.style.width = val + "%";
+      bar.style.background = barColors[i];
 
-      const percent=document.createElement("div");
-      percent.style.width="50px";
+      outer.appendChild(bar);
+
+      // 右％
+      const percent = document.createElement("div");
+      percent.textContent = val + "%";
+      percent.style.width="40px";
       percent.style.textAlign="right";
       percent.style.fontSize="12px";
-      percent.style.marginLeft="6px";
-      percent.textContent = val + "%";
 
-      barOuter.appendChild(bar);
-      line.appendChild(barOuter);
+      line.appendChild(label);
+      line.appendChild(outer);
       line.appendChild(percent);
 
-      return line;
-    };
-
-    barBox.appendChild(makeLine(base[i]));
-    barBox.appendChild(makeLine(predict[i]));
-    barBox.appendChild(makeLine(ai[i]));
+      box.appendChild(line);
+    });
 
     row.querySelector(".expectation-value").textContent = ai[i] + "%";
   });
