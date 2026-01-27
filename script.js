@@ -49,7 +49,6 @@ function selectStadium(i){
 function selectRace(r){
   document.getElementById("raceScreen").classList.add("hidden");
   document.getElementById("playerScreen").classList.remove("hidden");
-
   calcAll();
 }
 
@@ -85,12 +84,21 @@ function calcAll(){
 function updateExpectationBars(base,predict,ai){
 
   const colors = [
-    "#ffffff", // 1コース 白
-    "#000000", // 2 黒
-    "#e53935", // 3 赤
-    "#1e88e5", // 4 青
-    "#fdd835", // 5 黄
-    "#43a047"  // 6 緑
+    "#ffffff",
+    "#000000",
+    "#e53935",
+    "#1e88e5",
+    "#fdd835",
+    "#43a047"
+  ];
+
+  const lightColors = [
+    "rgba(255,255,255,0.4)",
+    "rgba(0,0,0,0.15)",
+    "rgba(229,57,53,0.25)",
+    "rgba(30,136,229,0.25)",
+    "rgba(253,216,53,0.35)",
+    "rgba(67,160,71,0.25)"
   ];
 
   document.querySelectorAll(".expectation-row").forEach((row,i)=>{
@@ -103,22 +111,32 @@ function updateExpectationBars(base,predict,ai){
       const line=document.createElement("div");
       line.style.display="flex";
       line.style.alignItems="center";
-      line.style.margin="4px 0";
+      line.style.margin="5px 0";
 
       const barOuter=document.createElement("div");
       barOuter.style.flex="1";
       barOuter.style.height="14px";
-      barOuter.style.border = i===0 ? "3px solid #000" : "1px solid #333";
-      barOuter.style.background="#eee";
       barOuter.style.position="relative";
+      barOuter.style.background = lightColors[i];
+      barOuter.style.border = i===0
+        ? `3px solid ${colors[i]}`
+        : `1px solid ${colors[i]}`;
 
       const bar=document.createElement("div");
       bar.style.height="100%";
       bar.style.width=val+"%";
-      bar.style.background=colors[i];
+      bar.style.background = colors[i];
+
+      const percent=document.createElement("div");
+      percent.style.width="50px";
+      percent.style.textAlign="right";
+      percent.style.fontSize="12px";
+      percent.style.marginLeft="6px";
+      percent.textContent = val + "%";
 
       barOuter.appendChild(bar);
       line.appendChild(barOuter);
+      line.appendChild(percent);
 
       return line;
     };
@@ -132,7 +150,7 @@ function updateExpectationBars(base,predict,ai){
 }
 
 // ===============================
-// 決まり手（安全）
+// 決まり手
 // ===============================
 function updateKimarite(){
 
