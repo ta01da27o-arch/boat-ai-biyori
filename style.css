@@ -261,3 +261,39 @@ h1,h2{
 
 .bet-mark{width:24px;font-weight:bold;}
 .bet-content{flex:1;}
+/* =========================
+   買い目 3枠レイアウト
+========================= */
+
+.bet-grid{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:8px;
+}
+
+.bet-col{
+ border:1px solid #bbb;
+ border-radius:6px;
+ padding:6px;
+ background:#fafafa;
+ text-align:center;
+}
+
+.bet-title{
+ font-weight:bold;
+ font-size:14px;
+ margin-bottom:6px;
+ background:#e6f5c9;
+ border-radius:4px;
+ padding:4px 0;
+}
+
+.bet-item{
+ font-size:14px;
+ padding:4px 0;
+ border-bottom:1px dotted #ccc;
+}
+
+.bet-item:last-child{
+ border-bottom:none;
+}
