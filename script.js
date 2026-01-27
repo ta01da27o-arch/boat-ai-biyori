@@ -1,177 +1,266 @@
-/* =========================
-   24場 正式名称
-========================= */
+/**************************************************
+ 競艇展開予想 完全統合フル script.js
+**************************************************/
 
-const stadiums = [
- "桐生","戸田","江戸川","平和島","多摩川","浜名湖",
- "蒲郡","常滑","津","三国","びわこ","住之江",
- "尼崎","鳴門","丸亀","児島","宮島","徳山",
- "下関","若松","芦屋","福岡","唐津","大村"
+document.addEventListener("DOMContentLoaded",()=>{
+
+/* =============================
+ 24場 正式名
+============================= */
+
+const stadiums=[
+"桐生","戸田","江戸川","平和島",
+"多摩川","浜名湖","蒲郡","常滑",
+"津","三国","びわこ","住之江",
+"尼崎","鳴門","丸亀","児島",
+"宮島","徳山","下関","若松",
+"芦屋","福岡","唐津","大村"
 ];
 
-/* =========================
-   初期画面生成
-========================= */
+/* =============================
+ DOM
+============================= */
 
-const stadiumGrid = document.querySelector(".stadium-grid");
-const raceGrid = document.querySelector(".race-grid");
+const stadiumGrid=document.querySelector(".stadium-grid");
+const raceGrid=document.querySelector(".race-grid");
 
-stadiums.forEach((name,i)=>{
- const btn=document.createElement("div");
- btn.className="stadium";
- btn.textContent=name;
- btn.onclick=()=>openRace(i);
- stadiumGrid.appendChild(btn);
+const stadiumScreen=document.getElementById("stadiumScreen");
+const raceScreen=document.getElementById("raceScreen");
+const playerScreen=document.getElementById("playerScreen");
+
+const backBtn=document.getElementById("backBtn");
+const raceTitle=document.getElementById("raceTitle");
+
+const raceTypeBox=document.getElementById("race-type");
+const analysisText=document.querySelector(".analysis-text");
+
+/* =============================
+ ① 場選択
+============================= */
+
+stadiums.forEach(name=>{
+  const btn=document.createElement("div");
+  btn.className="stadium";
+  btn.textContent=name;
+  btn.onclick=()=>{
+    stadiumScreen.classList.add("hidden");
+    raceScreen.classList.remove("hidden");
+    raceTitle.textContent=name+" レース選択";
+    createRaceButtons();
+  };
+  stadiumGrid.appendChild(btn);
 });
 
-function openRace(index){
- document.getElementById("stadiumScreen").classList.add("hidden");
- document.getElementById("raceScreen").classList.remove("hidden");
+/* =============================
+ レース生成
+============================= */
 
- raceGrid.innerHTML="";
-
- for(let i=1;i<=12;i++){
-  const r=document.createElement("div");
-  r.className="race";
-  r.textContent=i+"R";
-  r.onclick=()=>openPlayer(stadiums[index]+" "+i+"R");
-  raceGrid.appendChild(r);
- }
-
- document.getElementById("raceTitle").textContent=stadiums[index];
+function createRaceButtons(){
+  raceGrid.innerHTML="";
+  for(let i=1;i<=12;i++){
+    const r=document.createElement("div");
+    r.className="race";
+    r.textContent=i+"R";
+    r.onclick=()=>{
+      raceScreen.classList.add("hidden");
+      playerScreen.classList.remove("hidden");
+      runAllAI();
+    };
+    raceGrid.appendChild(r);
+  }
 }
 
-document.getElementById("backBtn").onclick=()=>{
- document.getElementById("raceScreen").classList.add("hidden");
- document.getElementById("stadiumScreen").classList.remove("hidden");
+backBtn.onclick=()=>{
+  raceScreen.classList.add("hidden");
+  stadiumScreen.classList.remove("hidden");
 };
 
-function openPlayer(title){
- document.getElementById("raceScreen").classList.add("hidden");
- document.getElementById("playerScreen").classList.remove("hidden");
- document.querySelector("#playerScreen h2").textContent=title;
+/* =============================
+ メインAI実行
+============================= */
 
- generateExpectationBars();
- randomizeAll();
+function runAllAI(){
+  generateRandomData();
+  const scores=calcTotalScores();
+  updateExpectationGraph(scores);
+  const type=detectRaceType(scores);
+  showRaceType(type);
+  generateAnalysis(type,scores);
+  generateBets(type,scores);
 }
 
-/* =========================
-   総合期待度 3本バー生成
-========================= */
+/* =============================
+ ダミーデータ生成
+============================= */
 
-function generateExpectationBars(){
-
- document.querySelectorAll(".expectation-bar").forEach(bar=>{
-  bar.innerHTML=`
-   <div class="bar-line">
-    <span class="bar-label">実績</span>
-    <div class="attack-base"></div>
-   </div>
-   <div class="bar-line">
-    <span class="bar-label">予測</span>
-    <div class="attack-predict"></div>
-   </div>
-   <div class="bar-line">
-    <span class="bar-label">AI</span>
-    <div class="attack-ai"></div>
-   </div>
-  `;
- });
-
+function generateRandomData(){
+  document.querySelectorAll(".bar div").forEach(bar=>{
+    const v=Math.floor(Math.random()*80)+10;
+    bar.style.width=v+"%";
+    bar.parentElement.nextElementSibling.textContent=v+"%";
+  });
 }
 
-/* =========================
-   ダミー数値生成（確認用）
-========================= */
+/* =============================
+ 総合期待度算出
+============================= */
 
-function randomizeAll(){
-
- document.querySelectorAll(".kimarite-row").forEach(row=>{
-  const v=Math.floor(Math.random()*80)+10;
-  row.querySelector(".bar div").style.width=v+"%";
-  row.querySelector(".value").textContent=v+"%";
- });
-
- document.querySelectorAll(".expectation-row").forEach(row=>{
-
-  const base=Math.floor(Math.random()*70)+10;
-  const predict=Math.floor(Math.random()*70)+10;
-  const ai=Math.floor(Math.random()*70)+10;
-
-  row.querySelector(".attack-base").style.width=base+"%";
-  row.querySelector(".attack-predict").style.width=predict+"%";
-  row.querySelector(".attack-ai").style.width=ai+"%";
-
-  row.dataset.ai=ai;
-  row.querySelector(".expectation-value").textContent=ai+"%";
-
- });
-
- buildBets();
+function calcTotalScores(){
+  let scores=[];
+  for(let i=1;i<=6;i++){
+    const base=Math.floor(Math.random()*70)+10;
+    const predict=Math.floor(Math.random()*70)+10;
+    const ai=Math.floor(Math.random()*70)+10;
+    scores.push({course:i,base,predict,ai,total:base+predict+ai});
+  }
+  return scores.sort((a,b)=>b.total-a.total);
 }
 
-/* =========================
-   買い目 自動構築（横1/3配置）
-========================= */
+/* =============================
+ 期待度3本グラフ描画
+============================= */
 
-function buildBets(){
+function updateExpectationGraph(scores){
 
- const rows=[...document.querySelectorAll(".expectation-row")];
- rows.sort((a,b)=>b.dataset.ai-a.dataset.ai);
+  scores.forEach((s,rank)=>{
 
- const main=[
-  rows[0].querySelector(".course-no").textContent,
-  rows[1].querySelector(".course-no").textContent,
-  rows[2].querySelector(".course-no").textContent
- ];
+    const row=document.querySelector(`.expectation-row.c${s.course}`);
+    const box=row.querySelector(".expectation-bar");
+    box.innerHTML="";
 
- const sub=[
-  rows[1].querySelector(".course-no").textContent,
-  rows[2].querySelector(".course-no").textContent,
-  rows[3].querySelector(".course-no").textContent
- ];
+    createBar(box,"実績",s.base);
+    createBar(box,"予測",s.predict);
+    createBar(box,"AI",s.ai);
 
- const esc=[
-  "1",
-  rows[1].querySelector(".course-no").textContent,
-  rows[2].querySelector(".course-no").textContent
- ];
-
- const betBox=document.querySelector(".bet-box");
-
- betBox.innerHTML=`
- <div style="display:flex;width:100%;gap:8px;">
-
-  <div style="flex:1;text-align:center;">
-   <b>本命</b>
-   <div>${main[0]}-${main[1]}-${main[2]}</div>
-   <div>${main[0]}-${main[2]}-${main[1]}</div>
-   <div>${main[1]}-${main[0]}-${main[2]}</div>
-  </div>
-
-  <div style="flex:1;text-align:center;">
-   <b>対抗</b>
-   <div>${sub[0]}-${sub[1]}-${sub[2]}</div>
-   <div>${sub[0]}-${sub[2]}-${sub[1]}</div>
-   <div>${sub[1]}-${sub[0]}-${sub[2]}</div>
-  </div>
-
-  <div style="flex:1;text-align:center;">
-   <b>逃げ</b>
-   <div>${esc[0]}-${esc[1]}-${esc[2]}</div>
-   <div>${esc[0]}-${esc[2]}-${esc[1]}</div>
-   <div>${esc[1]}-${esc[0]}-${esc[2]}</div>
-  </div>
-
- </div>
- `;
+    row.querySelector(".expectation-value").textContent=
+      Math.round(s.total/3)+"%";
+  });
 }
 
-/* =========================
-   初期安全呼び出し
-========================= */
+function createBar(parent,label,val){
 
-if(document.querySelector(".expectation-bar")){
- generateExpectationBars();
- randomizeAll();
+  const wrap=document.createElement("div");
+  wrap.className="bar-line";
+
+  const lab=document.createElement("div");
+  lab.className="bar-label";
+  lab.textContent=label;
+
+  const bar=document.createElement("div");
+  bar.style.width=val+"%";
+
+  const num=document.createElement("div");
+  num.style.width="34px";
+  num.style.textAlign="right";
+  num.style.fontSize="12px";
+  num.textContent=val;
+
+  wrap.appendChild(lab);
+  wrap.appendChild(bar);
+  wrap.appendChild(num);
+
+  parent.appendChild(wrap);
 }
+
+/* =============================
+ 展開タイプ判定AI（①）
+============================= */
+
+function detectRaceType(scores){
+
+  const top=scores[0].course;
+
+  if(top===1) return "イン逃げ主導型";
+
+  if(scores[0].course>=3 && scores[0].course<=4)
+    return "まくり勝負型";
+
+  if(scores[0].course===2)
+    return "差し展開型";
+
+  return "混戦波乱型";
+}
+
+/* =============================
+ 展開タイプ表示
+============================= */
+
+function showRaceType(type){
+  raceTypeBox.textContent="展開タイプ："+type;
+}
+
+/* =============================
+ 展開解析生成
+============================= */
+
+function generateAnalysis(type,scores){
+
+  let txt="";
+
+  switch(type){
+
+    case "イン逃げ主導型":
+      txt="1コースがスタート主導権を握り逃げ切り濃厚展開。内有利で波乱要素は少ない。";
+      break;
+
+    case "まくり勝負型":
+      txt="中枠勢がスピード勝負を仕掛ける展開。スタート次第で一気の逆転あり。";
+      break;
+
+    case "差し展開型":
+      txt="2コース中心に内外の差し比べ。展開読みが重要な一戦。";
+      break;
+
+    case "混戦波乱型":
+      txt="各艇拮抗し展開次第で着順変動大。高配当期待レース。";
+      break;
+  }
+
+  analysisText.textContent=txt;
+}
+
+/* =============================
+ 買い目生成（3枠）
+============================= */
+
+function generateBets(type,scores){
+
+  const first=scores[0].course;
+  const second=scores[1].course;
+  const third=scores[2].course;
+
+  const honmei=[
+    `${first}-${second}-${third}`,
+    `${first}-${third}-${second}`,
+    `${second}-${first}-${third}`
+  ];
+
+  const taikou=[
+    `${second}-${third}-${first}`,
+    `${second}-${first}-${third}`,
+    `${third}-${second}-${first}`
+  ];
+
+  const nige=[
+    `1-${second}-${third}`,
+    `1-${third}-${second}`,
+    `1-${third}-${scores[3].course}`
+  ];
+
+  fillBet("honmei",honmei);
+  fillBet("taikou",taikou);
+  fillBet("nige",nige);
+}
+
+function fillBet(cls,list){
+  const box=document.querySelector(`.${cls}`);
+  box.innerHTML="";
+  list.forEach(b=>{
+    const d=document.createElement("div");
+    d.className="bet-row";
+    d.textContent=b;
+    box.appendChild(d);
+  });
+}
+
+});
