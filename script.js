@@ -80,7 +80,7 @@ function calcAll(){
 }
 
 // ===============================
-// 総合期待度（3本グラフ完全対応）
+// ✅ 総合期待度（3本グラフ強化版）
 // ===============================
 function updateExpectationBars(base,predict,ai){
 
@@ -88,28 +88,58 @@ function updateExpectationBars(base,predict,ai){
 
     const box = row.querySelector(".expectation-bar");
 
-    // 一旦クリア
+    // 初期化
     box.innerHTML = "";
 
-    createBar(box, base[i], "exp-base");
-    createBar(box, predict[i], "exp-predict");
-    createBar(box, ai[i], "exp-ai");
+    const data = [
+      {label:"実績", value: base[i]},
+      {label:"予測", value: predict[i]},
+      {label:"AI", value: ai[i]}
+    ];
+
+    data.forEach(d=>{
+
+      const wrap = document.createElement("div");
+      wrap.style.display = "flex";
+      wrap.style.alignItems = "center";
+      wrap.style.marginBottom = "4px";
+
+      const lab = document.createElement("span");
+      lab.textContent = d.label;
+      lab.style.width = "40px";
+      lab.style.fontSize = "12px";
+
+      const barBox = document.createElement("div");
+      barBox.style.flex = "1";
+      barBox.style.height = "10px";
+      barBox.style.border = "1px solid #aaa";
+      barBox.style.marginRight = "6px";
+
+      const bar = document.createElement("div");
+      bar.style.height = "100%";
+      bar.style.width = d.value + "%";
+      bar.style.background = "#4caf50";
+
+      barBox.appendChild(bar);
+
+      const val = document.createElement("span");
+      val.textContent = d.value + "%";
+      val.style.fontSize = "12px";
+      val.style.width = "35px";
+
+      wrap.appendChild(lab);
+      wrap.appendChild(barBox);
+      wrap.appendChild(val);
+
+      box.appendChild(wrap);
+    });
 
     row.querySelector(".expectation-value").textContent = ai[i] + "%";
   });
 }
 
-function createBar(parent,val,className){
-
-  const bar = document.createElement("div");
-  bar.className = className;
-  bar.style.width = val + "%";
-
-  parent.appendChild(bar);
-}
-
 // ===============================
-// 決まり手グラフ
+// 決まり手グラフ（安全方式）
 // ===============================
 function updateKimarite(){
 
@@ -126,7 +156,7 @@ function updateKimarite(){
 }
 
 // ===============================
-// 展開タイプAI
+// 展開タイプAI（実戦寄り）
 // ===============================
 function updateRaceTypeByAI(ai){
 
@@ -159,7 +189,7 @@ function updateRaceTypeByAI(ai){
 }
 
 // ===============================
-// 展開解析
+// 展開解析コメント
 // ===============================
 function updateAnalysis(ai){
 
@@ -188,7 +218,7 @@ function updateAnalysis(ai){
 }
 
 // ===============================
-// 買い目生成
+// 買い目生成（3枠）
 // ===============================
 function updateBets(ai){
 
