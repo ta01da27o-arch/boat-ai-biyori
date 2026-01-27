@@ -366,3 +366,27 @@ h1,h2{
 .attack-ai{
  position:relative;
 }
+/* =========================
+   総合期待度 右端数値固定
+========================= */
+
+.expectation-row{
+ position:relative;
+}
+
+/* 数値専用カラム */
+
+.expectation-value{
+ position:absolute;
+ right:8px;
+ top:50%;
+ transform:translateY(-50%);
+ font-size:13px;
+ font-weight:bold;
+}
+
+/* グラフ領域を数値分だけ縮める */
+
+.expectation-bar{
+ margin-right:50px;   /* 数値表示スペース確保 */
+}
