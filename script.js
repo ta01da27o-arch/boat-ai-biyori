@@ -50,7 +50,6 @@ function selectRace(r){
   document.getElementById("raceScreen").classList.add("hidden");
   document.getElementById("playerScreen").classList.remove("hidden");
 
-  // 自動計算
   calcAll();
 }
 
@@ -73,7 +72,7 @@ function calcAll(){
     ai.push(a);
   }
 
-  updateExpectationBars(ai);
+  updateExpectationBars(base,predict,ai);
   updateKimarite();
   updateRaceTypeByAI(ai);
   updateAnalysis(ai);
@@ -81,22 +80,36 @@ function calcAll(){
 }
 
 // ===============================
-// 総合期待度（安全方式）
+// 総合期待度（3本グラフ完全対応）
 // ===============================
-function updateExpectationBars(ai){
+function updateExpectationBars(base,predict,ai){
 
   document.querySelectorAll(".expectation-row").forEach((row,i)=>{
 
-    const bar = row.querySelector(".expectation-bar div");
+    const box = row.querySelector(".expectation-bar");
 
-    bar.style.width = ai[i] + "%";
+    // 一旦クリア
+    box.innerHTML = "";
+
+    createBar(box, base[i], "exp-base");
+    createBar(box, predict[i], "exp-predict");
+    createBar(box, ai[i], "exp-ai");
 
     row.querySelector(".expectation-value").textContent = ai[i] + "%";
   });
 }
 
+function createBar(parent,val,className){
+
+  const bar = document.createElement("div");
+  bar.className = className;
+  bar.style.width = val + "%";
+
+  parent.appendChild(bar);
+}
+
 // ===============================
-// 決まり手グラフ（安全方式）
+// 決まり手グラフ
 // ===============================
 function updateKimarite(){
 
@@ -113,7 +126,7 @@ function updateKimarite(){
 }
 
 // ===============================
-// 展開タイプAI（実戦寄り）
+// 展開タイプAI
 // ===============================
 function updateRaceTypeByAI(ai){
 
@@ -146,7 +159,7 @@ function updateRaceTypeByAI(ai){
 }
 
 // ===============================
-// 展開解析コメント
+// 展開解析
 // ===============================
 function updateAnalysis(ai){
 
@@ -175,7 +188,7 @@ function updateAnalysis(ai){
 }
 
 // ===============================
-// 買い目生成（3枠）
+// 買い目生成
 // ===============================
 function updateBets(ai){
 
