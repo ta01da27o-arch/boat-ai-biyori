@@ -11,11 +11,6 @@ const stadiums = [
 ];
 
 // ===============================
-// 過去傾向補正値（A）
-// ===============================
-const pastBias = [18, 8, 0, -5, -10, -15];
-
-// ===============================
 // 初期表示
 // ===============================
 const stadiumGrid = document.querySelector(".stadium-grid");
@@ -69,35 +64,19 @@ function calcAll(){
   for(let i=0;i<6;i++){
     const b = Math.floor(40+Math.random()*40);
     const p = Math.floor(35+Math.random()*45);
+    const a = Math.round(b*0.4 + p*0.6);
 
-    base.push(b + pastBias[i]);
-    predict.push(p + pastBias[i]);
+    base.push(b);
+    predict.push(p);
+    ai.push(a);
   }
-
-  for(let i=0;i<6;i++){
-    ai.push(Math.round(base[i]*0.4 + predict[i]*0.6));
-  }
-
-  normalize(base);
-  normalize(predict);
-  normalize(ai);
 
   updateExpectationBars(base,predict,ai);
   updateKimarite();
-  updateRaceTypeByAI(ai);
+  const raceType = updateRaceTypeByAI(ai);
   updateAnalysis(ai);
   updateBets(ai);
-  updateHitRateSimulation(base,predict,ai);
-}
-
-// ===============================
-// 正規化（最大100%）
-// ===============================
-function normalize(arr){
-  const max = Math.max(...arr);
-  for(let i=0;i<arr.length;i++){
-    arr[i] = Math.max(1, Math.round(arr[i] / max * 100));
-  }
+  updateHitRateSimulation(base,predict,ai,raceType);
 }
 
 // ===============================
@@ -105,7 +84,7 @@ function normalize(arr){
 // ===============================
 function updateExpectationBars(base,predict,ai){
 
-  const colors=["#fff","#000","#ff3333","#3366ff","#ffcc00","#33cc66"];
+  const colors=["#ffffff","#000000","#ff3333","#3366ff","#ffcc00","#33cc66"];
   const labels=["実績","予測","AI"];
 
   document.querySelectorAll(".expectation-row").forEach((row,i)=>{
@@ -113,14 +92,16 @@ function updateExpectationBars(base,predict,ai){
     const box=row.querySelector(".expectation-bar");
     box.innerHTML="";
 
-    [base[i],predict[i],ai[i]].forEach((val,j)=>{
+    const values=[base[i],predict[i],ai[i]];
+
+    values.forEach((v,j)=>{
 
       const line=document.createElement("div");
       line.className="bar-line";
 
-      const label=document.createElement("span");
-      label.className="bar-label";
-      label.textContent=labels[j];
+      const lab=document.createElement("span");
+      lab.className="bar-label";
+      lab.textContent=labels[j];
 
       const outer=document.createElement("div");
       outer.style.flex="1";
@@ -132,18 +113,19 @@ function updateExpectationBars(base,predict,ai){
 
       const bar=document.createElement("div");
       bar.style.height="100%";
-      bar.style.width=val+"%";
+      bar.style.width=v+"%";
       bar.style.background=colors[i];
-      bar.style.border=(i===0?"2px":"1px")+" solid #000";
+      bar.style.border=(i===0)?"2px solid #000":"1px solid #000";
+      bar.style.boxSizing="border-box";
 
       const txt=document.createElement("span");
       txt.className="bar-text";
-      txt.textContent=val+"%";
+      txt.textContent=v+"%";
 
       outer.appendChild(bar);
       outer.appendChild(txt);
 
-      line.appendChild(label);
+      line.appendChild(lab);
       line.appendChild(outer);
       box.appendChild(line);
     });
@@ -161,14 +143,14 @@ function getLightColor(i){
 // ===============================
 function updateKimarite(){
   document.querySelectorAll(".kimarite-row").forEach(row=>{
-    const v=Math.floor(20+Math.random()*70);
+    const v=Math.floor(10+Math.random()*75);
     row.querySelector(".bar div").style.width=v+"%";
     row.querySelector(".value").textContent=v+"%";
   });
 }
 
 // ===============================
-// 展開タイプ
+// 展開タイプAI
 // ===============================
 function updateRaceTypeByAI(ai){
 
@@ -176,13 +158,20 @@ function updateRaceTypeByAI(ai){
   const middle=(ai[1]+ai[2]+ai[3])/3;
   const outer=(ai[4]+ai[5])/2;
 
+  const max=Math.max(...ai);
+  const min=Math.min(...ai);
+
   let type="";
-  if(inner>middle+10) type="イン逃げ主導型";
-  else if(middle>outer) type="中枠攻め合い型";
-  else if(outer>inner) type="外伸び波乱型";
+
+  if(inner>middle+10&&inner>outer+15) type="イン逃げ主導型";
+  else if(middle>inner&&middle>outer) type="中枠攻め合い型";
+  else if(outer>inner&&outer>middle) type="外伸び波乱型";
+  else if(max-min<8) type="超混戦型";
   else type="バランス型";
 
   document.getElementById("race-type").textContent="展開タイプ : "+type;
+
+  return type;
 }
 
 // ===============================
@@ -190,42 +179,33 @@ function updateRaceTypeByAI(ai){
 // ===============================
 function updateAnalysis(ai){
 
-  const order=ai.map((v,i)=>({v,i:i+1}))
-    .sort((a,b)=>b.v-a.v);
+  const order=ai.map((v,i)=>({v,i:i+1})).sort((a,b)=>b.v-a.v);
 
   const main=order[0].i;
   const sub=order[1].i;
 
-  let txt="";
+  let text="";
 
-  if(main===1) txt="1コースが主導権。逃げ中心展開。";
-  else if(main<=3) txt="中枠主導で展開流動的。";
-  else txt="外枠強襲で波乱傾向。";
+  if(main===1) text="1コースがスタート優勢。イン主導で展開は安定傾向。";
+  else if(main<=3) text="中枠勢が主導権争い。展開が動きやすいレース。";
+  else text="外枠の伸びが優勢。波乱展開も十分。";
 
-  txt+=`\n軸：${main}コース　対抗：${sub}コース`;
+  text+=`\n軸候補は ${main}コース。対抗は ${sub}コース。`;
 
-  document.querySelector(".analysis-text").textContent=txt;
+  document.querySelector(".analysis-text").textContent=text;
 }
 
 // ===============================
-// 買い目（逃げは必ず1頭）
+// 買い目（完成版維持）
 // ===============================
 function updateBets(ai){
 
-  const sorted=[0,1,2,3,4,5]
-    .map(i=>({v:ai[i],i:i+1}))
+  const sorted=[0,1,2,3,4,5].map(i=>({v:ai[i],i:i+1}))
     .sort((a,b)=>b.v-a.v);
 
-  let main=sorted[0].i;
-  let sub=sorted[1].i;
-  let third=sorted[2].i;
-
-  if(main!==1){
-    main=1;
-    const others=sorted.filter(x=>x.i!==1);
-    sub=others[0].i;
-    third=others[1].i;
-  }
+  const main=sorted[0].i;
+  const sub=sorted[1].i;
+  const third=sorted[2].i;
 
   const cols=document.querySelectorAll(".bet-col");
 
@@ -241,19 +221,48 @@ function setCol(col,arr){
 }
 
 // ===============================
-// 的中率シミュレーション（連動）
+// 的中率シミュレーション（B①強化版）
 // ===============================
-function updateHitRateSimulation(base,predict,ai){
+function updateHitRateSimulation(base,predict,ai,raceType){
 
-  const cont=document.getElementById("hitRateSection");
-  if(!cont) return;
+  const container=document.getElementById("hitRateSection");
+  if(!container) return;
 
-  cont.innerHTML="";
+  container.innerHTML="";
 
-  const colors=["#fff","#000","#ff3333","#3366ff","#ffcc00","#33cc66"];
-  const lights=["#fff","#eee","#ffe5e5","#e5f0ff","#fff7cc","#e5ffe5"];
+  const colors=["#ffffff","#000000","#ff3333","#3366ff","#ffcc00","#33cc66"];
+  const light=["#fff","#eee","#ffe5e5","#e5f0ff","#fff7cc","#e5ffe5"];
+
+  let rates=[];
 
   for(let i=0;i<6;i++){
+    rates[i]=Math.round((base[i]+predict[i]+ai[i])/3);
+  }
+
+  // ===== 展開補正 =====
+  if(raceType==="イン逃げ主導型"){
+    rates[0]+=5;
+  }
+  if(raceType==="中枠攻め合い型"){
+    rates[1]+=3; rates[2]+=3; rates[3]+=3;
+  }
+  if(raceType==="外伸び波乱型"){
+    rates[4]+=6; rates[5]+=6;
+  }
+
+  // ===== 荒れ調整 =====
+  const avg=rates.reduce((a,b)=>a+b,0)/6;
+
+  for(let i=0;i<6;i++){
+    if(rates[i]>avg+18) rates[i]-=4;
+    if(rates[i]<avg-18) rates[i]+=4;
+  }
+
+  // ===== 表示 =====
+  for(let i=0;i<6;i++){
+
+    if(rates[i]>95) rates[i]=95;
+    if(rates[i]<5) rates[i]=5;
 
     const row=document.createElement("div");
     row.className="hitrate-row";
@@ -262,30 +271,29 @@ function updateHitRateSimulation(base,predict,ai){
     row.style.marginBottom="6px";
 
     const label=document.createElement("span");
-    label.textContent=i+1;
     label.style.width="28px";
     label.style.textAlign="right";
-    label.style.marginRight="8px";
+    label.style.marginRight="10px";
+    label.textContent=(i+1);
 
     const outer=document.createElement("div");
     outer.style.flex="1";
     outer.style.height="14px";
+    outer.style.background=light[i];
     outer.style.border="1px solid #333";
-    outer.style.background=lights[i];
-    outer.style.position="relative";
     outer.style.borderRadius="4px";
-
-    const rate=Math.round((base[i]+predict[i]+ai[i])/3);
+    outer.style.position="relative";
 
     const bar=document.createElement("div");
     bar.style.height="100%";
-    bar.style.width=rate+"%";
+    bar.style.width=rates[i]+"%";
     bar.style.background=colors[i];
     bar.style.border="1px solid #000";
+    bar.style.boxSizing="border-box";
 
     const txt=document.createElement("span");
     txt.className="bar-text";
-    txt.textContent=rate+"%";
+    txt.textContent=rates[i]+"%";
 
     outer.appendChild(bar);
     outer.appendChild(txt);
@@ -293,6 +301,6 @@ function updateHitRateSimulation(base,predict,ai){
     row.appendChild(label);
     row.appendChild(outer);
 
-    cont.appendChild(row);
+    container.appendChild(row);
   }
 }
