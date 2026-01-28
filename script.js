@@ -400,3 +400,111 @@ function renderConfidence(hardness, volatility, reliability){
     </div>
   `;
 }
+// ===============================
+// C③：最終信頼度メーター（過去傾向＋AI連動）
+// ===============================
+
+// ダミー過去傾向データ（24場）
+const pastTrends = [
+  {hard:65,vol:20},{hard:60,vol:25},{hard:58,vol:22},{hard:62,vol:18},
+  {hard:55,vol:30},{hard:68,vol:15},{hard:63,vol:20},{hard:57,vol:28},
+  {hard:59,vol:24},{hard:61,vol:21},{hard:64,vol:19},{hard:56,vol:27},
+  {hard:60,vol:23},{hard:62,vol:20},{hard:58,vol:25},{hard:59,vol:22},
+  {hard:61,vol:21},{hard:57,vol:26},{hard:63,vol:18},{hard:56,vol:28},
+  {hard:60,vol:24},{hard:62,vol:22},{hard:59,vol:25},{hard:61,vol:20}
+];
+
+// ===============================
+// 信頼度計算関数
+// ===============================
+function calcHardness(ai){
+  // 1位軸のAIスコアを堅さに変換
+  const sorted = [...ai].sort((a,b)=>b-a);
+  return Math.min(Math.round(sorted[0]*1.2),100);
+}
+
+function calcVolatility(ai){
+  // 上位3艇の差を荒れ指数に変換
+  const sorted = [...ai].sort((a,b)=>b-a);
+  return Math.min(Math.round((sorted[0]-sorted[2])*2),100);
+}
+
+function calcReliability(hardness, volatility){
+  // 総合信頼度
+  let rel = hardness - volatility;
+  if(rel<0) rel=0;
+  if(rel>100) rel=100;
+  return rel;
+}
+
+// ===============================
+// 過去傾向＋AI統合 信頼度
+// ===============================
+function updateConfidenceMeterFinal(base,predict,ai,stadiumIndex){
+
+  const hardness = calcHardness(ai);
+  const volatility = calcVolatility(ai);
+  const reliability = calcReliability(hardness, volatility);
+
+  const past = pastTrends[stadiumIndex] || {hard:60,vol:25};
+
+  // 過去データとAIを統合（重み 60:40）
+  const finalHard = Math.round(hardness*0.6 + past.hard*0.4);
+  const finalVol  = Math.round(volatility*0.6 + past.vol*0.4);
+
+  let finalReliability = finalHard - finalVol;
+  if(finalReliability<0) finalReliability=0;
+  if(finalReliability>100) finalReliability=100;
+
+  renderConfidenceFinal(finalHard, finalVol, finalReliability);
+}
+
+// ===============================
+// 信頼度表示（横並びバー）
+// ===============================
+function renderConfidenceFinal(hardness, volatility, reliability){
+
+  let box = document.getElementById("confidenceSection");
+  if(!box){
+    // 初回はセクションを作成
+    box = document.createElement("section");
+    box.id = "confidenceSection";
+    box.style.marginTop = "20px";
+    document.getElementById("playerScreen").appendChild(box);
+  }
+
+  box.innerHTML = `
+    <h2>最終信頼度メーター（過去傾向＋AI）</h2>
+
+    <div class="confidence-row" style="display:flex;align-items:center;margin-bottom:6px;">
+      <span style="width:120px;">堅さスコア</span>
+      <div class="conf-bar" style="flex:1;height:14px;border:1px solid #333;background:#eee;border-radius:4px;margin:0 8px;">
+        <div style="width:${hardness}%;height:100%;background:#33cc66;border:1px solid #000;box-sizing:border-box;"></div>
+      </div>
+      <span>${hardness}%</span>
+    </div>
+
+    <div class="confidence-row" style="display:flex;align-items:center;margin-bottom:6px;">
+      <span style="width:120px;">荒れ指数</span>
+      <div class="conf-bar" style="flex:1;height:14px;border:1px solid #333;background:#ffe5e5;border-radius:4px;margin:0 8px;">
+        <div style="width:${Math.min(volatility,100)}%;height:100%;background:#ff3333;border:1px solid #000;box-sizing:border-box;"></div>
+      </div>
+      <span>${volatility}</span>
+    </div>
+
+    <div class="confidence-row" style="display:flex;align-items:center;margin-bottom:6px;">
+      <span style="width:120px;">総合信頼度</span>
+      <div class="conf-bar" style="flex:1;height:14px;border:1px solid #333;background:#fff7cc;border-radius:4px;margin:0 8px;">
+        <div style="width:${reliability}%;height:100%;background:#ffcc00;border:1px solid #000;box-sizing:border-box;"></div>
+      </div>
+      <span>${reliability}%</span>
+    </div>
+  `;
+}
+
+// ===============================
+// calcAll() 呼び出し末尾に追加
+// ===============================
+// 使用例: stadiumIndex を選択場に置き換える
+// const stadiumIndex = 0; // 選択場インデックス
+// updateConfidenceMeterFinal(base,predict,ai,stadiumIndex);
