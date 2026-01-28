@@ -81,7 +81,7 @@ function calcAll(){
 }
 
 // ===============================
-// 総合期待度（ラベル表示修正版）
+// 総合期待度（バーラベル日本語化版）
 // ===============================
 function updateExpectationBars(base,predict,ai){
 
@@ -94,11 +94,12 @@ function updateExpectationBars(base,predict,ai){
     "#33cc66"  // 6 緑
   ];
 
+  const japaneseLabels = ["実績","予測","AI"];
+
   document.querySelectorAll(".expectation-row").forEach((row,i)=>{
     const barBox = row.querySelector(".expectation-bar");
     barBox.innerHTML="";
 
-    const labels = ["Base","Predict","AI"];
     const values = [base[i], predict[i], ai[i]];
 
     values.forEach((val,j)=>{
@@ -107,7 +108,7 @@ function updateExpectationBars(base,predict,ai){
 
       const label = document.createElement("span");
       label.className="bar-label";
-      label.textContent = labels[j];
+      label.textContent = japaneseLabels[j]; // ←ここを日本語に変更
 
       const barOuter=document.createElement("div");
       barOuter.style.flex="1";
@@ -152,7 +153,6 @@ function getLightColor(i){
 // 決まり手（安全方式）
 // ===============================
 function updateKimarite(){
-
   document.querySelectorAll(".kimarite-row").forEach(row=>{
     const v = Math.floor(10 + Math.random()*75);
     const bar = row.querySelector(".bar div");
@@ -166,7 +166,6 @@ function updateKimarite(){
 // 展開タイプAI
 // ===============================
 function updateRaceTypeByAI(ai){
-
   const inner = ai[0];
   const middle = (ai[1]+ai[2]+ai[3])/3;
   const outer = (ai[4]+ai[5])/2;
@@ -175,22 +174,11 @@ function updateRaceTypeByAI(ai){
   const min=Math.min(...ai);
 
   let type="";
-
-  if(inner > middle+10 && inner > outer+15){
-    type="イン逃げ主導型";
-  }
-  else if(middle > inner && middle > outer){
-    type="中枠攻め合い型";
-  }
-  else if(outer > inner && outer > middle){
-    type="外伸び波乱型";
-  }
-  else if(max-min < 8){
-    type="超混戦型";
-  }
-  else{
-    type="バランス型";
-  }
+  if(inner > middle+10 && inner > outer+15) type="イン逃げ主導型";
+  else if(middle > inner && middle > outer) type="中枠攻め合い型";
+  else if(outer > inner && outer > middle) type="外伸び波乱型";
+  else if(max-min < 8) type="超混戦型";
+  else type="バランス型";
 
   document.getElementById("race-type").textContent =
     "展開タイプ : " + type;
@@ -200,7 +188,6 @@ function updateRaceTypeByAI(ai){
 // 展開解析
 // ===============================
 function updateAnalysis(ai){
-
   const order = ai
     .map((v,i)=>({v,i:i+1}))
     .sort((a,b)=>b.v-a.v);
@@ -209,16 +196,9 @@ function updateAnalysis(ai){
   const sub = order[1].i;
 
   let text="";
-
-  if(main===1){
-    text="1コースがスタート優勢。イン主導で展開は安定傾向。";
-  }
-  else if(main<=3){
-    text="中枠勢が主導権争い。展開が動きやすいレース。";
-  }
-  else{
-    text="外枠の伸びが優勢。波乱展開も十分。";
-  }
+  if(main===1) text="1コースがスタート優勢。イン主導で展開は安定傾向。";
+  else if(main<=3) text="中枠勢が主導権争い。展開が動きやすいレース。";
+  else text="外枠の伸びが優勢。波乱展開も十分。";
 
   text += `\n軸候補は ${main}コース。対抗は ${sub}コース。`;
 
@@ -226,10 +206,9 @@ function updateAnalysis(ai){
 }
 
 // ===============================
-// 買い目生成（重複なし修正版）
+// 買い目生成（重複なし）
 // ===============================
 function updateBets(ai){
-
   const indices = [0,1,2,3,4,5];
 
   const sorted = indices
@@ -241,7 +220,7 @@ function updateBets(ai){
   let third = sorted[2].i;
 
   // 重複回避
-  if(third === main) third = sorted.find(x=>x.i!==main && x.i!==sub).i;
+  if(third === main || third === sub) third = sorted.find(x=>x.i!==main && x.i!==sub).i;
 
   const cols = document.querySelectorAll(".bet-col");
 
@@ -261,7 +240,6 @@ function setCol(col,arr){
 // 的中率シュミレーション（総合期待度・決まり手・買い目連動）
 // ===============================
 function updateHitRateSimulation(base,predict,ai){
-
   const container = document.getElementById("hitRateSection");
   if(!container) return;
 
