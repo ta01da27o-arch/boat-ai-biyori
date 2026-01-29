@@ -779,3 +779,87 @@ function updateTrustMeter(ai){
   meter.style.width = avg + "%";            // 総合信頼度バー
   scoreText.textContent = `総合信頼度: ${avg}%  荒れ指数: ${volatility}`;
 }
+// ===============================
+// 過去傾向反映＋AI補正（末尾追加）
+// ===============================
+
+// 過去データダミー（本来はDBやAPIから取得）
+const pastPerformance = {
+  1: { win: 45, place: 30 }, 2: { win: 40, place: 35 },
+  3: { win: 38, place: 32 }, 4: { win: 35, place: 30 },
+  5: { win: 33, place: 28 }, 6: { win: 30, place: 25 }
+};
+
+// calcAll() 内で呼び出すだけで、自動補正
+function applyPastTrendCorrection(ai){
+  const corrected = ai.map((v,i)=>{
+    const past = pastPerformance[i+1] || {win:35, place:30};
+    // 過去勝率・連対率をAI期待度に加味
+    const trendScore = Math.round(v*0.7 + past.win*0.3);
+    return trendScore;
+  });
+  return corrected;
+}
+
+// ===============================
+// 最終補正後の更新（全画面連動）
+// ===============================
+function updateAllWithTrend(base,predict,ai){
+
+  const correctedAI = applyPastTrendCorrection(ai);
+
+  updateExpectationBars(base,predict,correctedAI);
+  updateKimarite();
+  updateRaceTypeByAI(correctedAI);
+  updateAnalysis(correctedAI);
+  updateBets(correctedAI);
+  updateHoleBets(correctedAI); // 追加穴買い目
+  updateHitRateSimulation(base,predict,correctedAI);
+  updateConfidenceMeter(correctedAI); // 信頼度バー表示
+}
+
+// ===============================
+// 信頼度バー（末尾追加）
+// ===============================
+function updateConfidenceMeter(ai){
+  const container = document.getElementById("confidenceMeterSection");
+  if(!container) return;
+
+  container.innerHTML="";
+
+  const max = Math.max(...ai);
+  const min = Math.min(...ai);
+
+  ai.forEach((v,i)=>{
+    const row = document.createElement("div");
+    row.className="confidence-row";
+    row.style.display="flex";
+    row.style.alignItems="center";
+    row.style.marginBottom="4px";
+
+    const label = document.createElement("span");
+    label.textContent = (i+1)+"";
+    label.style.width = "24px";
+    label.style.marginRight = "6px";
+
+    const barOuter = document.createElement("div");
+    barOuter.style.flex = "1";
+    barOuter.style.height = "12px";
+    barOuter.style.background = "#eee";
+    barOuter.style.border = "1px solid #333";
+    barOuter.style.borderRadius = "4px";
+
+    const bar = document.createElement("div");
+    bar.style.height = "100%";
+    // 信頼度はAI期待度の標準化で算出
+    const confidence = Math.round((v - min)/(max-min) * 100);
+    bar.style.width = confidence + "%";
+    bar.style.background = "#33cc66";
+
+    barOuter.appendChild(bar);
+    row.appendChild(label);
+    row.appendChild(barOuter);
+
+    container.appendChild(row);
+  });
+}
