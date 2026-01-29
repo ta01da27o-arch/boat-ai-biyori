@@ -295,3 +295,102 @@ function normalize(arr){
  const max=Math.max(...arr);
  return arr.map(v=>clamp(Math.round(v/max*100)));
 }
+/* =====================================
+   総合期待度 完全再現 強制上書きパッチ
+   （末尾追加専用）
+===================================== */
+
+// clamp保険
+if(typeof clamp!=="function"){
+ window.clamp=(v)=>Math.max(0,Math.min(100,v));
+}
+
+// ---- AI生成 上書き ----
+window.generateAI=function(){
+
+ let arr=[];
+
+ for(let i=0;i<6;i++){
+
+  let v=45 + Math.random()*35;
+
+  if(i===0) v+=10;
+  if(i===5) v-=8;
+
+  arr.push(Math.round(clamp(v)));
+ }
+
+ return arr;
+};
+
+// ---- 総合期待度描画 強制差し替え ----
+window.updateExpectation=function(base,predict,ai){
+
+ const colors=[
+  "#ff5252",
+  "#ff9800",
+  "#ffeb3b",
+  "#8bc34a",
+  "#03a9f4",
+  "#9c27b0"
+ ];
+
+ document.querySelectorAll(".expectation-row").forEach((row,i)=>{
+
+  const box=row.querySelector(".expectation-bar");
+  box.innerHTML="";
+
+  const sets=[
+    ["実績",base[i]],
+    ["予測",predict[i]],
+    ["AI",ai[i]]
+  ];
+
+  sets.forEach(s=>{
+
+   const wrap=document.createElement("div");
+   wrap.style.display="flex";
+   wrap.style.alignItems="center";
+   wrap.style.marginBottom="5px";
+
+   const label=document.createElement("span");
+   label.textContent=s[0];
+   label.style.width="40px";
+   label.style.fontSize="12px";
+
+   const barWrap=document.createElement("div");
+   barWrap.style.flex="1";
+   barWrap.style.height="12px";
+   barWrap.style.background="#ddd";
+   barWrap.style.position="relative";
+   barWrap.style.borderRadius="6px";
+   barWrap.style.overflow="hidden";
+
+   const bar=document.createElement("div");
+   bar.style.height="100%";
+   bar.style.width=s[1]+"%";
+   bar.style.background=colors[i];
+
+   const value=document.createElement("span");
+   value.textContent=s[1]+"%";
+   value.style.position="absolute";
+   value.style.right="6px";
+   value.style.top="-1px";
+   value.style.fontSize="11px";
+
+   barWrap.appendChild(bar);
+   barWrap.appendChild(value);
+
+   wrap.appendChild(label);
+   wrap.appendChild(barWrap);
+
+   box.appendChild(wrap);
+
+  });
+
+  row.querySelector(".expectation-value").textContent=ai[i]+"%";
+ });
+
+};
+
+console.log("✅ 総合期待度 完全連動パッチ適用済み");
