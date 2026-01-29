@@ -179,50 +179,58 @@ function updateAnalysis(ai){
   document.querySelector(".analysis-text").textContent=text;
 }
 // ===============================
-// 2部：買い目（穴・逃げ）修正版
+// 2部：買い目（本命・対抗・逃げ・穴）完全フルコード
 // ===============================
 
-// ① 買い目欄HTML自動生成（穴欄を追加）
-(function createHoleBetSection() {
+// ① 買い目欄HTML自動生成（末尾追加用）
+(function createBetSections() {
   const betSection = document.getElementById("betSection");
   if (!betSection) return;
 
-  // 穴買い目欄
-  const holeCol = document.createElement("div");
-  holeCol.className = "bet-col hole";
+  const titles = ["本命","対抗","逃げ","穴"];
 
-  const title = document.createElement("div");
-  title.className = "bet-title";
-  title.textContent = "穴";
-  holeCol.appendChild(title);
+  titles.forEach(titleText => {
+    const col = document.createElement("div");
+    col.className = "bet-col";
+    if(titleText==="穴") col.classList.add("hole");
 
-  for (let i = 0; i < 3; i++) {
-    const item = document.createElement("div");
-    item.className = "bet-item";
-    holeCol.appendChild(item);
-  }
+    const title = document.createElement("div");
+    title.className = "bet-title";
+    title.textContent = titleText;
+    col.appendChild(title);
 
-  betSection.querySelector(".bet-box").appendChild(holeCol);
+    for(let i=0;i<3;i++){
+      const item = document.createElement("div");
+      item.className = "bet-item";
+      col.appendChild(item);
+    }
 
-  // スタイル調整：4分割表示
+    betSection.querySelector(".bet-box").appendChild(col);
+  });
+
+  // 4分割表示
   const cols = betSection.querySelectorAll(".bet-col");
-  cols.forEach(col => col.style.flex = "1");
-  betSection.querySelector(".bet-box").style.display = "flex";
-  betSection.querySelector(".bet-box").style.gap = "8px";
+  cols.forEach(col=>col.style.flex="1");
+  betSection.querySelector(".bet-box").style.display="flex";
+  betSection.querySelector(".bet-box").style.gap="8px";
 })();
 
-// ② 総合買い目AI化関数（本命・対抗・逃げ + 穴）
-function updateTotalBets(base, predict, ai) {
-  const sorted = ai.map((v, i) => ({ v, i: i + 1 })).sort((a, b) => b.v - a.v);
+// ===============================
+// ② 総合買い目AI化関数（本命・対抗・逃げ・穴）
+// ===============================
+function updateTotalBets(base, predict, ai){
+
+  // AIスコア降順ソート
+  const sorted = ai.map((v,i)=>({v,i:i+1})).sort((a,b)=>b.v-a.v);
 
   const main = sorted[0].i;      // 本命
   const sub  = sorted[1].i;      // 対抗
   const third= sorted[2].i;      // 3着候補
 
-  const others = [1, 2, 3, 4, 5, 6].filter(n => ![main, sub, third].includes(n));
+  const others = [1,2,3,4,5,6].filter(n=>! [main,sub,third].includes(n));
 
   const cols = document.querySelectorAll(".bet-col");
-  if (cols.length < 4) return;
+  if(cols.length < 4) return;
 
   // 本命
   setCol(cols[0], [
@@ -238,19 +246,19 @@ function updateTotalBets(base, predict, ai) {
     `${sub}-${third}-${main}`
   ]);
 
-  // 逃げ（1固定で補完あり）
+  // 逃げ（1固定）
   const escape1 = 1;
-  const escapeOthers = others.length >= 3 ? others : [...others, 2,3,4,5,6].filter(n=>n!==escape1).slice(0,3);
+  const escapeOthers = others.length>=3 ? others : [...others,2,3,4,5,6].filter(n=>n!==escape1).slice(0,3);
   setCol(cols[2], [
     `${escape1}-${escapeOthers[0]}-${escapeOthers[1]}`,
     `${escape1}-${escapeOthers[1]}-${escapeOthers[0]}`,
     `${escape1}-${escapeOthers[2]}-${escapeOthers[0]}`
   ]);
 
-  // 穴（低スコアコースを自動選定）
-  const holeCandidates = sorted.slice(3).map(x => x.i);
-  const fill = [...others].filter(n => !holeCandidates.includes(n));
-  const holeList = [...holeCandidates, ...fill].slice(0,3);
+  // 穴（下位3艇＋不足はothers補完）
+  const holeCandidates = sorted.slice(3).map(x=>x.i);
+  const fill = others.filter(n=>!holeCandidates.includes(n));
+  const holeList = [...holeCandidates,...fill].slice(0,3);
 
   setCol(cols[3], [
     `${holeList[0]}-${holeList[1]}-${holeList[2]}`,
@@ -259,10 +267,12 @@ function updateTotalBets(base, predict, ai) {
   ]);
 }
 
-// ③ 穴買い目更新関数（calcAll()末尾で呼ぶ）
+// ===============================
+// ③ 穴買い目更新関数（calcAll()内で自動更新）
+// ===============================
 function updateHoleBets(ai){
   const cols = document.querySelectorAll(".bet-col");
-  if(cols.length < 4) return; // 穴欄が存在するか確認
+  if(cols.length < 4) return;
 
   const sorted = ai.map((v,i)=>({v,i:i+1})).sort((a,b)=>b.v-a.v);
 
@@ -270,11 +280,11 @@ function updateHoleBets(ai){
   const sub  = sorted[1].i;
   const third= sorted[2].i;
 
-  const others = [1,2,3,4,5,6].filter(n=>! [main,sub,third].includes(n));
+  const others = [1,2,3,4,5,6].filter(n=>![main,sub,third].includes(n));
 
   const holeCandidates = sorted.slice(3).map(x=>x.i);
-  const fill = others.filter(n => !holeCandidates.includes(n));
-  const holeList = [...holeCandidates, ...fill].slice(0,3);
+  const fill = others.filter(n=>!holeCandidates.includes(n));
+  const holeList = [...holeCandidates,...fill].slice(0,3);
 
   const holeCol = cols[3];
   setCol(holeCol, [
@@ -284,15 +294,21 @@ function updateHoleBets(ai){
   ]);
 }
 
-// ④ setCol関数（既存のまま流用可）
+// ===============================
+// ④ setCol関数（既存コードと同一）
+// ===============================
 function setCol(col, arr){
   col.querySelectorAll(".bet-item").forEach((el,i)=>{
     el.textContent = arr[i] || "";
   });
 }
 
-// ⑤ calcAll()末尾呼び出し例
+// ===============================
+// ⑤ calcAll()での呼び出し例
+// ===============================
+// calcAll() 内で最後に実行
 // updateTotalBets(base, predict, ai);
+// updateHoleBets(ai);
 // ===============================
 // 過去傾向データ（ダミー、0～100）
 // ===============================
