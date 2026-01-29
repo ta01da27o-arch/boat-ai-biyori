@@ -179,169 +179,120 @@ function updateAnalysis(ai){
   document.querySelector(".analysis-text").textContent=text;
 }
 // ===============================
-// 買い目（本命・対抗・逃げ）
+// 2部：買い目（穴・逃げ）修正版
 // ===============================
-function updateBets(ai){
-  const sorted=ai.map((v,i)=>({v,i:i+1})).sort((a,b)=>b.v-a.v);
-  const main=sorted[0].i;
-  const sub=sorted[1].i;
-  const third=sorted[2].i;
-  const others=[1,2,3,4,5,6].filter(n=>![main,sub,third].includes(n));
 
-  const cols=document.querySelectorAll(".bet-col");
+// ① 買い目欄HTML自動生成（穴欄を追加）
+(function createHoleBetSection() {
+  const betSection = document.getElementById("betSection");
+  if (!betSection) return;
+
+  // 穴買い目欄
+  const holeCol = document.createElement("div");
+  holeCol.className = "bet-col hole";
+
+  const title = document.createElement("div");
+  title.className = "bet-title";
+  title.textContent = "穴";
+  holeCol.appendChild(title);
+
+  for (let i = 0; i < 3; i++) {
+    const item = document.createElement("div");
+    item.className = "bet-item";
+    holeCol.appendChild(item);
+  }
+
+  betSection.querySelector(".bet-box").appendChild(holeCol);
+
+  // スタイル調整：4分割表示
+  const cols = betSection.querySelectorAll(".bet-col");
+  cols.forEach(col => col.style.flex = "1");
+  betSection.querySelector(".bet-box").style.display = "flex";
+  betSection.querySelector(".bet-box").style.gap = "8px";
+})();
+
+// ② 総合買い目AI化関数（本命・対抗・逃げ + 穴）
+function updateTotalBets(base, predict, ai) {
+  const sorted = ai.map((v, i) => ({ v, i: i + 1 })).sort((a, b) => b.v - a.v);
+
+  const main = sorted[0].i;      // 本命
+  const sub  = sorted[1].i;      // 対抗
+  const third= sorted[2].i;      // 3着候補
+
+  const others = [1, 2, 3, 4, 5, 6].filter(n => ![main, sub, third].includes(n));
+
+  const cols = document.querySelectorAll(".bet-col");
+  if (cols.length < 4) return;
 
   // 本命
-  setCol(cols[0],[
+  setCol(cols[0], [
     `${main}-${sub}-${third}`,
     `${main}-${third}-${sub}`,
     `${sub}-${main}-${third}`
   ]);
 
   // 対抗
-  setCol(cols[1],[
+  setCol(cols[1], [
     `${sub}-${main}-${third}`,
     `${third}-${main}-${sub}`,
     `${sub}-${third}-${main}`
   ]);
 
-  // 逃げ（1固定）
-  setCol(cols[2],[
-    `1-${others[0]}-${others[1]}`,
-    `1-${others[1]}-${others[0]}`,
-    `1-${others[2]}-${others[3]}`
+  // 逃げ（1固定で補完あり）
+  const escape1 = 1;
+  const escapeOthers = others.length >= 3 ? others : [...others, 2,3,4,5,6].filter(n=>n!==escape1).slice(0,3);
+  setCol(cols[2], [
+    `${escape1}-${escapeOthers[0]}-${escapeOthers[1]}`,
+    `${escape1}-${escapeOthers[1]}-${escapeOthers[0]}`,
+    `${escape1}-${escapeOthers[2]}-${escapeOthers[0]}`
+  ]);
+
+  // 穴（低スコアコースを自動選定）
+  const holeCandidates = sorted.slice(3).map(x => x.i);
+  const fill = [...others].filter(n => !holeCandidates.includes(n));
+  const holeList = [...holeCandidates, ...fill].slice(0,3);
+
+  setCol(cols[3], [
+    `${holeList[0]}-${holeList[1]}-${holeList[2]}`,
+    `${holeList[0]}-${holeList[2]}-${holeList[1]}`,
+    `${holeList[1]}-${holeList[0]}-${holeList[2]}`
   ]);
 }
 
-// ===============================
-// 汎用セット関数
-// ===============================
-function setCol(col,arr){
-  col.querySelectorAll(".bet-item").forEach((el,i)=>{
-    el.textContent=arr[i]||"";
-  });
-}
-
-// ===============================
-// 穴買い目（末尾追加用）
-// ===============================
-(function createHoleBetSection(){
-  const betSection = document.getElementById("betSection");
-  if(!betSection) return;
-
-  const holeCol=document.createElement("div");
-  holeCol.className="bet-col hole";
-  const title=document.createElement("div");
-  title.className="bet-title";
-  title.textContent="穴";
-  holeCol.appendChild(title);
-
-  for(let i=0;i<3;i++){
-    const item=document.createElement("div");
-    item.className="bet-item";
-    holeCol.appendChild(item);
-  }
-
-  betSection.querySelector(".bet-box").appendChild(holeCol);
-
-  // 4分割表示調整
-  const cols = betSection.querySelectorAll(".bet-col");
-  cols.forEach(col => col.style.flex="1");
-  betSection.querySelector(".bet-box").style.display="flex";
-  betSection.querySelector(".bet-box").style.gap="8px";
-})();
-
-// 穴買い目自動更新
+// ③ 穴買い目更新関数（calcAll()末尾で呼ぶ）
 function updateHoleBets(ai){
+  const cols = document.querySelectorAll(".bet-col");
+  if(cols.length < 4) return; // 穴欄が存在するか確認
+
   const sorted = ai.map((v,i)=>({v,i:i+1})).sort((a,b)=>b.v-a.v);
-  const others = [1,2,3,4,5,6].filter(n=>!sorted.slice(0,3).map(x=>x.i).includes(n));
-  const holeCol = document.querySelectorAll(".bet-col")[3]; // 穴
-  const bets = [
-    `${others[0]}-${others[1]}-${others[2]}`,
-    `${others[0]}-${others[2]}-${others[1]}`,
-    `${others[1]}-${others[0]}-${others[2]}`
-  ];
-  setCol(holeCol,bets);
+
+  const main = sorted[0].i;
+  const sub  = sorted[1].i;
+  const third= sorted[2].i;
+
+  const others = [1,2,3,4,5,6].filter(n=>! [main,sub,third].includes(n));
+
+  const holeCandidates = sorted.slice(3).map(x=>x.i);
+  const fill = others.filter(n => !holeCandidates.includes(n));
+  const holeList = [...holeCandidates, ...fill].slice(0,3);
+
+  const holeCol = cols[3];
+  setCol(holeCol, [
+    `${holeList[0]}-${holeList[1]}-${holeList[2]}`,
+    `${holeList[0]}-${holeList[2]}-${holeList[1]}`,
+    `${holeList[1]}-${holeList[0]}-${holeList[2]}`
+  ]);
 }
 
-// ===============================
-// 的中率シミュレーション
-// ===============================
-function updateHitRateSimulation(base,predict,ai){
-  const rows=document.querySelectorAll("#hitRateSection .hitrate-row");
-  const colors=["#fff","#000","#ff3333","#3366ff","#ffcc00","#33cc66"];
-  const light=["#fff","#eee","#ffe5e5","#e5f0ff","#fff7cc","#e5ffe5"];
-
-  rows.forEach((row,i)=>{
-    row.style.display="flex";
-    row.style.alignItems="center";
-    row.style.marginBottom="6px";
-
-    const rate=Math.round((base[i]+predict[i]+ai[i])/3);
-    const val=row.querySelector(".hitrate-value");
-    const outer=row.querySelector(".hitrate-bar");
-    const bar=outer.querySelector("div");
-
-    val.textContent=rate+"%";
-    val.style.width="50px";
-    val.style.textAlign="right";
-    val.style.marginRight="8px";
-
-    outer.style.flex="1";
-    outer.style.height="14px";
-    outer.style.border="1px solid #333";
-    outer.style.background=light[i];
-    outer.style.borderRadius="4px";
-
-    bar.style.height="100%";
-    bar.style.width=rate+"%";
-    bar.style.background=colors[i];
-    bar.style.border="1px solid #000";
+// ④ setCol関数（既存のまま流用可）
+function setCol(col, arr){
+  col.querySelectorAll(".bet-item").forEach((el,i)=>{
+    el.textContent = arr[i] || "";
   });
 }
 
-// ===============================
-// 信頼度メーター（C①基本）
-// ===============================
-function updateTrustMeter(ai){
-  const max=Math.max(...ai);
-  const min=Math.min(...ai);
-  let solidity = max-min;
-  const avg = ai.reduce((a,b)=>a+b,0)/6;
-  let variance = ai.reduce((s,v)=>s+Math.abs(v-avg),0)/6;
-  solidity = Math.min(100, Math.round(solidity*1.5));
-  variance = Math.min(100, Math.round(variance*1.8));
-  let trust=Math.round(solidity-variance*0.6);
-  if(trust<0) trust=0;
-  if(trust>100) trust=100;
-
-  let box=document.getElementById("trustMeter");
-  if(!box){
-    box=document.createElement("div");
-    box.id="trustMeter";
-    box.style.margin="16px 0";
-    box.style.padding="12px";
-    box.style.border="2px solid #333";
-    box.style.borderRadius="8px";
-    document.getElementById("playerScreen").appendChild(box);
-  }
-  box.innerHTML=`
-    <h2>信頼度メーター</h2>
-    <p>堅さスコア：${solidity}</p>
-    <p>荒れ指数：${variance}</p>
-    <p><strong>総合信頼度：${trust}%</strong></p>
-  `;
-}
-
-// ===============================
-// 統合更新（本命・対抗・逃げ・穴・的中率・信頼度）
-// ===============================
-function updateAllDisplays(ai,base,predict){
-  updateBets(ai);          // 本命・対抗・逃げ
-  updateHoleBets(ai);      // 穴買い目
-  updateExpectationBars(base,predict,ai);  // 総合期待度
-  updateHitRateSimulation(base,predict,ai); // 的中率
-  updateTrustMeter(ai);    // 信頼度
-}
+// ⑤ calcAll()末尾呼び出し例
+// updateTotalBets(base, predict, ai);
 // ===============================
 // 過去傾向データ（ダミー、0～100）
 // ===============================
