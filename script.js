@@ -2,39 +2,33 @@
 // 24場名
 // ===============================
 const stadiums = [
-  "桐生","戸田","江戸川","平和島",
-  "多摩川","浜名湖","蒲郡","常滑",
-  "津","三国","びわこ","住之江",
-  "尼崎","鳴門","丸亀","児島",
-  "宮島","徳山","下関","若松",
-  "芦屋","福岡","唐津","大村"
+  "桐生","戸田","江戸川","平和島","多摩川","浜名湖","蒲郡","常滑",
+  "津","三国","びわこ","住之江","尼崎","鳴門","丸亀","児島",
+  "宮島","徳山","下関","若松","芦屋","福岡","唐津","大村"
 ];
 
-let currentStadiumIndex = 0;
+let selectedStadium = 0;
 
 // ===============================
-// 初期表示生成
+// 初期表示
 // ===============================
 const stadiumGrid = document.querySelector(".stadium-grid");
 const raceGrid = document.querySelector(".race-grid");
 
 stadiums.forEach((name,i)=>{
-  const div=document.createElement("div");
-  div.className="stadium";
-  div.textContent=name;
-  div.onclick=()=>{
-    currentStadiumIndex = i;
-    selectStadium();
-  };
-  stadiumGrid.appendChild(div);
+  const d=document.createElement("div");
+  d.className="stadium";
+  d.textContent=name;
+  d.onclick=()=>selectStadium(i);
+  stadiumGrid.appendChild(d);
 });
 
 for(let i=1;i<=12;i++){
-  const div=document.createElement("div");
-  div.className="race";
-  div.textContent=i+"R";
-  div.onclick=()=>selectRace();
-  raceGrid.appendChild(div);
+  const r=document.createElement("div");
+  r.className="race";
+  r.textContent=i+"R";
+  r.onclick=()=>selectRace();
+  raceGrid.appendChild(r);
 }
 
 document.getElementById("backBtn").onclick=()=>{
@@ -45,50 +39,130 @@ document.getElementById("backBtn").onclick=()=>{
 // ===============================
 // 画面遷移
 // ===============================
-function selectStadium(){
+function selectStadium(i){
+  selectedStadium=i;
   document.getElementById("stadiumScreen").classList.add("hidden");
   document.getElementById("raceScreen").classList.remove("hidden");
-  document.getElementById("raceTitle").textContent=stadiums[currentStadiumIndex];
+  document.getElementById("raceTitle").textContent=stadiums[i];
 }
 
 function selectRace(){
   document.getElementById("raceScreen").classList.add("hidden");
   document.getElementById("playerScreen").classList.remove("hidden");
-  calcAll();
+  calcAllLinked();
 }
-// ===============================
-// メイン計算（唯一のcalcAll）
-// ===============================
-function calcAll(){
 
+// ===============================
+// ★ 完全連動データ生成
+// ===============================
+function generateTruePower(){
+
+  let arr=[];
+  for(let i=0;i<6;i++){
+
+    let base = 45 + Math.random()*30;
+
+    // 内枠有利補正
+    if(i===0) base+=8;
+    if(i===1) base+=4;
+    if(i>=4) base-=4;
+
+    arr.push(Math.round(base));
+  }
+
+  return arr;
+}
+
+// ===============================
+// メイン処理
+// ===============================
+function calcAllLinked(){
+
+  const truePower = generateTruePower();
+
+  // ----------------------------
+  // 実績・予測生成（連動）
+  // ----------------------------
   let base=[];
   let predict=[];
+
+  truePower.forEach(v=>{
+    base.push(clamp(v + rand(-6,6)));
+    predict.push(clamp(v + rand(-8,8)));
+  });
+
+  // ----------------------------
+  // 決まり手連動生成
+  // ----------------------------
+  const kimariteAdv = generateKimarite(truePower);
+
+  // ----------------------------
+  // AI期待度（完全連動）
+  // ----------------------------
   let ai=[];
 
   for(let i=0;i<6;i++){
-    const b = Math.floor(40+Math.random()*40);
-    const p = Math.floor(35+Math.random()*45);
-
-    // 学習風重み
-    const weightB = 0.35 + Math.random()*0.1;
-    const weightP = 1 - weightB;
-
-    const a = Math.round(b*weightB + p*weightP);
-
-    base.push(b);
-    predict.push(p);
-    ai.push(a);
+    const val = Math.round(
+      base[i]*0.4 +
+      predict[i]*0.4 +
+      kimariteAdv[i]*0.2
+    );
+    ai.push(clamp(val));
   }
 
+  // ----------------------------
+  // 表示反映
+  // ----------------------------
   updateExpectationBars(base,predict,ai);
-  updateKimarite();
+  updateKimariteBars(kimariteAdv);
   updateRaceType(ai);
   updateAnalysis(ai);
-  updateMainBets(ai);
-  updateHoleBets(ai);
-  updateHitRateSimulation(base,predict,ai);
+  updateBetsLinked(ai);
+  updateHitRate(base,predict,ai);
+  updateTrust(ai);
+}
 
-  // 信頼度は③で統合
+// ===============================
+// ユーティリティ
+// ===============================
+function rand(min,max){
+  return Math.floor(Math.random()*(max-min+1))+min;
+}
+
+function clamp(v){
+  if(v<0) return 0;
+  if(v>100) return 100;
+  return v;
+}
+
+// ===============================
+// 決まり手生成（正規化）
+// ===============================
+function generateKimarite(tp){
+
+  let raw=[
+    tp[0]*1.4,
+    tp[1]*1.1,
+    tp[2]*1.0,
+    tp[3]*0.9,
+    tp[4]*0.8,
+    tp[5]*0.7
+  ];
+
+  const sum = raw.reduce((a,b)=>a+b,0);
+
+  return raw.map(v=>Math.round(v/sum*100));
+}
+
+function updateKimariteBars(arr){
+
+  const rows=document.querySelectorAll(".kimarite-row");
+
+  rows.forEach((row,i)=>{
+    const val = arr[i%6];
+    row.querySelector(".bar div").style.width=val+"%";
+    row.querySelector(".value").textContent=val+"%";
+  });
 }
 
 // ===============================
@@ -96,46 +170,47 @@ function calcAll(){
 // ===============================
 function updateExpectationBars(base,predict,ai){
 
-  const colors = ["#fff","#000","#ff3333","#3366ff","#ffcc00","#33cc66"];
-  const labels = ["実績","予測","AI"];
-  const light  = ["#fff","#eee","#ffe5e5","#e5f0ff","#fff7cc","#e5ffe5"];
+  const labels=["実績","予測","AI"];
 
   document.querySelectorAll(".expectation-row").forEach((row,i)=>{
 
-    const box = row.querySelector(".expectation-bar");
+    const box=row.querySelector(".expectation-bar");
     box.innerHTML="";
 
-    [base[i],predict[i],ai[i]].forEach((val,j)=>{
+    [base[i],predict[i],ai[i]].forEach((v,j)=>{
 
       const line=document.createElement("div");
-      line.className="bar-line";
+      line.style.display="flex";
+      line.style.alignItems="center";
+      line.style.marginBottom="4px";
 
-      const label=document.createElement("span");
-      label.className="bar-label";
-      label.textContent=labels[j];
+      const lab=document.createElement("span");
+      lab.textContent=labels[j];
+      lab.style.width="50px";
 
-      const outer=document.createElement("div");
-      outer.style.flex="1";
-      outer.style.height="14px";
-      outer.style.border="1px solid #333";
-      outer.style.background=light[i];
-      outer.style.borderRadius="4px";
-      outer.style.position="relative";
+      const out=document.createElement("div");
+      out.style.flex="1";
+      out.style.height="14px";
+      out.style.border="1px solid #333";
+      out.style.background="#eee";
+      out.style.position="relative";
+      out.style.borderRadius="4px";
 
       const bar=document.createElement("div");
       bar.style.height="100%";
-      bar.style.width=val+"%";
-      bar.style.background=colors[i];
-      bar.style.border="1px solid #000";
+      bar.style.width=v+"%";
+      bar.style.background="#33cc66";
 
       const txt=document.createElement("span");
-      txt.className="bar-text";
-      txt.textContent=val+"%";
+      txt.textContent=v+"%";
+      txt.style.position="absolute";
+      txt.style.right="4px";
+      txt.style.fontSize="12px";
 
-      outer.appendChild(bar);
-      outer.appendChild(txt);
-      line.appendChild(label);
-      line.appendChild(outer);
+      out.appendChild(bar);
+      out.appendChild(txt);
+      line.appendChild(lab);
+      line.appendChild(out);
       box.appendChild(line);
     });
 
@@ -144,32 +219,19 @@ function updateExpectationBars(base,predict,ai){
 }
 
 // ===============================
-// 決まり手（ダミー）
-// ===============================
-function updateKimarite(){
-  document.querySelectorAll(".kimarite-row").forEach(row=>{
-    const v=Math.floor(10+Math.random()*75);
-    row.querySelector(".bar div").style.width=v+"%";
-    row.querySelector(".value").textContent=v+"%";
-  });
-}
-
-// ===============================
 // 展開タイプ
 // ===============================
 function updateRaceType(ai){
 
-  const inner = ai[0];
-  const middle = (ai[1]+ai[2]+ai[3])/3;
-  const outer = (ai[4]+ai[5])/2;
+  const inner=ai[0];
+  const middle=(ai[1]+ai[2]+ai[3])/3;
+  const outer=(ai[4]+ai[5])/2;
 
-  let type="";
+  let type="バランス型";
 
-  if(inner>middle+10 && inner>outer+15) type="イン逃げ主導型";
-  else if(middle>inner && middle>outer) type="中枠攻め合い型";
-  else if(outer>inner && outer>middle) type="外伸び波乱型";
-  else if(Math.max(...ai)-Math.min(...ai)<8) type="超混戦型";
-  else type="バランス型";
+  if(inner>middle+10) type="イン逃げ主導型";
+  else if(middle>inner+8) type="中枠攻め型";
+  else if(outer>middle+8) type="外伸び波乱型";
 
   document.getElementById("race-type").textContent="展開タイプ : "+type;
 }
@@ -179,38 +241,36 @@ function updateRaceType(ai){
 // ===============================
 function updateAnalysis(ai){
 
-  const order = ai.map((v,i)=>({v,i:i+1})).sort((a,b)=>b.v-a.v);
+  const sorted = ai.map((v,i)=>({v,i:i+1})).sort((a,b)=>b.v-a.v);
 
-  const main = order[0].i;
-  const sub  = order[1].i;
+  const main=sorted[0].i;
+  const sub=sorted[1].i;
 
-  let txt="";
+  let text="";
 
-  if(main===1) txt="1コースが主導権。イン有利展開。";
-  else if(main<=3) txt="中枠中心で流れが動く。";
-  else txt="外枠優勢で波乱含み。";
+  if(main===1) text="インコース主導で逃げ有利展開。";
+  else if(main<=3) text="中枠中心で展開が動く流れ。";
+  else text="外枠浮上で波乱含み。";
 
-  txt += `\n軸は${main}コース、対抗${sub}コース。`;
+  text+=`\n軸は${main}コース、相手本線${sub}コース。`;
 
-  document.querySelector(".analysis-text").textContent = txt;
+  document.querySelector(".analysis-text").textContent=text;
 }
 
 // ===============================
-// 本命・対抗・逃げ 買い目
+// 買い目完全連動
 // ===============================
-function updateMainBets(ai){
+function updateBetsLinked(ai){
 
-  const sorted = ai.map((v,i)=>({v,i:i+1})).sort((a,b)=>b.v-a.v);
+  const s = ai.map((v,i)=>({v,i:i+1})).sort((a,b)=>b.v-a.v);
 
-  const main = sorted[0].i;
-  const sub  = sorted[1].i;
-  const third= sorted[2].i;
+  const main=s[0].i;
+  const sub=s[1].i;
+  const third=s[2].i;
 
-  const others = [1,2,3,4,5,6].filter(n=>![main,sub,third].includes(n));
+  const others=[1,2,3,4,5,6].filter(n=>![main,sub,third].includes(n));
 
-  const cols = document.querySelectorAll(".bet-col");
-
-  if(cols.length < 3) return;
+  const cols=document.querySelectorAll(".bet-col");
 
   setCol(cols[0],[
     `${main}-${sub}-${third}`,
@@ -229,206 +289,82 @@ function updateMainBets(ai){
     `1-${others[1]}-${others[0]}`,
     `1-${others[2]}-${others[3]}`
   ]);
+
+  if(cols[3]){
+    setCol(cols[3],[
+      `${others[0]}-${others[1]}-${others[2]}`,
+      `${others[1]}-${others[0]}-${others[2]}`,
+      `${others[2]}-${others[0]}-${others[1]}`
+    ]);
+  }
 }
 
-// ===============================
-// 穴買い目
-// ===============================
-function updateHoleBets(ai){
-
-  const sorted = ai.map((v,i)=>({v,i:i+1})).sort((a,b)=>b.v-a.v);
-
-  const hole = sorted.slice(3).map(x=>x.i);
-
-  const col = document.querySelectorAll(".bet-col")[3];
-  if(!col) return;
-
-  setCol(col,[
-    `${hole[0]}-${hole[1]}-${hole[2]}`,
-    `${hole[0]}-${hole[2]}-${hole[1]}`,
-    `${hole[1]}-${hole[0]}-${hole[2]}`
-  ]);
-}
-
-// ===============================
-// 汎用列セット
-// ===============================
 function setCol(col,arr){
   col.querySelectorAll(".bet-item").forEach((el,i)=>{
-    el.textContent = arr[i] || "";
+    el.textContent=arr[i]||"";
   });
 }
 
 // ===============================
 // 的中率シミュレーション
 // ===============================
-function updateHitRateSimulation(base,predict,ai){
+function updateHitRate(base,predict,ai){
 
-  const rows = document.querySelectorAll("#hitRateSection .hitrate-row");
-
-  const colors = ["#fff","#000","#ff3333","#3366ff","#ffcc00","#33cc66"];
-  const light  = ["#fff","#eee","#ffe5e5","#e5f0ff","#fff7cc","#e5ffe5"];
+  const rows=document.querySelectorAll(".hitrate-row");
 
   rows.forEach((row,i)=>{
 
     const rate = Math.round((base[i]+predict[i]+ai[i])/3);
 
-    const val = row.querySelector(".hitrate-value");
-    const outer = row.querySelector(".hitrate-bar");
-    const bar = outer.querySelector("div");
+    const val=row.querySelector(".hitrate-value");
+    const bar=row.querySelector(".hitrate-bar div");
 
-    val.textContent = rate+"%";
-
-    outer.style.background = light[i];
-    bar.style.width = rate+"%";
-    bar.style.background = colors[i];
-  });
-}
-// ===============================
-// 過去傾向データ（24場 × 6艇）
-// ===============================
-const pastTrend = [
-  [60,50,45,40,35,30],[55,50,50,45,40,35],[50,45,50,40,35,30],[60,55,50,45,40,35],
-  [55,50,45,40,35,30],[50,45,40,35,30,25],[60,55,50,45,40,35],[55,50,45,40,35,30],
-  [50,45,40,35,30,25],[60,55,50,45,40,35],[55,50,45,40,35,30],[50,45,40,35,30,25],
-  [60,55,50,45,40,35],[55,50,45,40,35,30],[50,45,40,35,30,25],[60,55,50,45,40,35],
-  [55,50,45,40,35,30],[50,45,40,35,30,25],[60,55,50,45,40,35],[55,50,45,40,35,30],
-  [50,45,40,35,30,25],[60,55,50,45,40,35],[55,50,45,40,35,30],[50,45,40,35,30,25]
-];
-
-// ===============================
-// AI＋過去傾向 統合補正
-// ===============================
-function applyTrendCorrection(ai, stadiumIndex){
-
-  const trend = pastTrend[stadiumIndex] || [50,50,50,50,50,50];
-
-  return ai.map((v,i)=>{
-    return Math.round(v*0.7 + trend[i]*0.3);
+    val.textContent=rate+"%";
+    bar.style.width=rate+"%";
   });
 }
 
 // ===============================
-// 信頼度メーター計算
+// 信頼度メーター（完全連動）
 // ===============================
-function calcTrust(ai){
+function updateTrust(ai){
 
-  const max = Math.max(...ai);
-  const min = Math.min(...ai);
-  const avg = ai.reduce((a,b)=>a+b,0)/ai.length;
+  const max=Math.max(...ai);
+  const min=Math.min(...ai);
 
-  // 堅さ：上位集中
-  let solidity = Math.round((max - min) * 1.4);
-  if(solidity>100) solidity=100;
+  const solidity = clamp(Math.round((max-min)*1.4));
+  const avg = ai.reduce((a,b)=>a+b,0)/6;
 
-  // 荒れ：ばらつき
-  let volatility = Math.round(
-    ai.reduce((s,v)=>s+Math.abs(v-avg),0)/ai.length * 1.6
-  );
-  if(volatility>100) volatility=100;
+  const variance = ai.reduce((s,v)=>s+Math.abs(v-avg),0)/6;
+  const volatility = clamp(Math.round(variance*1.5));
 
-  // 総合信頼度
-  let trust = solidity - volatility*0.6;
-  trust = Math.round(Math.max(0,Math.min(100,trust)));
+  let trust = solidity - volatility;
+  if(trust<0) trust=0;
 
-  return {solidity,volatility,trust};
-}
-
-// ===============================
-// 信頼度メーター描画
-// ===============================
-function renderTrustMeter(solidity,volatility,trust){
-
-  let box = document.getElementById("confidenceSection");
+  let box=document.getElementById("confidenceSection");
 
   if(!box){
-    box = document.createElement("section");
+    box=document.createElement("section");
     box.id="confidenceSection";
-    box.style.marginTop="20px";
     document.getElementById("playerScreen").appendChild(box);
   }
 
-  box.innerHTML = `
+  box.innerHTML=`
     <h2>信頼度メーター</h2>
 
-    <div class="confidence-row" style="display:flex;align-items:center;margin-bottom:6px;">
-      <span style="width:110px;">堅さ</span>
-      <div style="flex:1;height:14px;border:1px solid #333;background:#e5ffe5;border-radius:4px;margin:0 8px;">
-        <div style="width:${solidity}%;height:100%;background:#33cc66;border:1px solid #000;"></div>
-      </div>
-      <span>${solidity}%</span>
-    </div>
-
-    <div class="confidence-row" style="display:flex;align-items:center;margin-bottom:6px;">
-      <span style="width:110px;">荒れ指数</span>
-      <div style="flex:1;height:14px;border:1px solid #333;background:#ffe5e5;border-radius:4px;margin:0 8px;">
-        <div style="width:${volatility}%;height:100%;background:#ff3333;border:1px solid #000;"></div>
-      </div>
-      <span>${volatility}%</span>
-    </div>
-
-    <div class="confidence-row" style="display:flex;align-items:center;margin-bottom:6px;">
-      <span style="width:110px;">総合信頼度</span>
-      <div style="flex:1;height:14px;border:1px solid #333;background:#fff7cc;border-radius:4px;margin:0 8px;">
-        <div style="width:${trust}%;height:100%;background:#ffcc00;border:1px solid #000;"></div>
-      </div>
-      <span>${trust}%</span>
-    </div>
+    ${renderTrustRow("堅さ",solidity,"#33cc66")}
+    ${renderTrustRow("荒れ指数",volatility,"#ff3333")}
+    ${renderTrustRow("総合信頼度",trust,"#ffcc00")}
   `;
 }
 
-// ===============================
-// calcAll 上書き最終統合版
-// ===============================
-// ※①②のcalcAllをこれに置き換え
-function calcAllFinal(stadiumIndex=0){
-
-  let base=[];
-  let predict=[];
-  let ai=[];
-
-  for(let i=0;i<6;i++){
-    const b = Math.floor(40+Math.random()*40);
-    const p = Math.floor(35+Math.random()*45);
-
-    const weightB = 0.35 + Math.random()*0.1;
-    const weightP = 1 - weightB;
-
-    const a = Math.round(b*weightB + p*weightP);
-
-    base.push(b);
-    predict.push(p);
-    ai.push(a);
-  }
-
-  // 過去傾向反映
-  const correctedAI = applyTrendCorrection(ai, stadiumIndex);
-
-  // 表示更新
-  updateExpectationBars(base,predict,correctedAI);
-  updateKimarite();
-  updateRaceType(correctedAI);
-  updateAnalysis(correctedAI);
-  updateMainBets(correctedAI);
-  updateHoleBets(correctedAI);
-  updateHitRateSimulation(base,predict,correctedAI);
-
-  // 信頼度
-  const trustData = calcTrust(correctedAI);
-  renderTrustMeter(
-    trustData.solidity,
-    trustData.volatility,
-    trustData.trust
-  );
-}
-
-// ===============================
-// レース選択時に最終版を呼ぶ
-// ===============================
-function selectRace(){
-  document.getElementById("raceScreen").classList.add("hidden");
-  document.getElementById("playerScreen").classList.remove("hidden");
-
-  // 仮：場インデックス0（後で連動可能）
-  calcAllFinal(0);
+function renderTrustRow(label,val,color){
+  return `
+  <div style="display:flex;align-items:center;margin-bottom:6px;">
+    <span style="width:90px">${label}</span>
+    <div style="flex:1;height:14px;border:1px solid #333;background:#eee;border-radius:4px;margin:0 6px;">
+      <div style="width:${val}%;height:100%;background:${color};border:1px solid #000;"></div>
+    </div>
+    <span>${val}%</span>
+  </div>`;
 }
