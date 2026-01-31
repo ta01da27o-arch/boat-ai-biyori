@@ -105,7 +105,8 @@ function calcAllWithTrend(stadiumIndex){
   updateBets(ai);
   updateHitRateSimulation(base,predict,ai);
   updateTrustMeter(ai);
-  // ===============================
+}
+// ===============================
 // 総合期待度バー（3本バー＋ラベル付き）
 function updateExpectationBars(base,predict,ai){
 
@@ -244,7 +245,7 @@ ${sub}コースが続き高配当も視野。
   }
 
   document.querySelector(".analysis-text").textContent = text;
-    } 
+}
 // ===============================
 // 買い目（逃げ重複完全排除＋9点ユニーク）
 function updateBets(ai){
@@ -375,4 +376,4 @@ function updateTrustMeter(ai){
     <p>荒れ指数：${variance}</p>
     <p><strong>総合信頼度：${trust}%</strong></p>
   `;
-      }
+}
